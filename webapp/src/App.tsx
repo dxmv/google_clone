@@ -5,7 +5,7 @@ type FormData = {
   query: string;
 }
 
-const API_URL = import.meta.env.VITE_QUERY_API_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_QUERY_API_URL || 'https://localhost:8000'
 
 function App() {
   const [formData, setFormData] = useState<FormData>({
@@ -21,11 +21,20 @@ function App() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const res = await fetch(`${API_URL}/api/search`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
       method: 'POST',
-      body: JSON.stringify(formData),
-    })
+      body: JSON.stringify({ ...formData }),
+    });
+
+    if (!res.ok) {
+      alert('Error: ' + res.statusText)
+      return
+    }
+
     const data = await res.json()
-    console.log(data)
+    alert(data.message)
   }
 
   return (
