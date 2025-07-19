@@ -4,11 +4,44 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"unicode"
 
 	"golang.org/x/net/html"
 )
 
 const CORPUS_DIR = "./corpus"
+
+var COMMON_WORDS map[string]bool = map[string]bool{
+	"the":  true,
+	"and":  true,
+	"of":   true,
+	"to":   true,
+	"in":   true,
+	"on":   true,
+	"at":   true,
+	"for":  true,
+	"by":   true,
+	"with": true,
+	"as":   true,
+	"from": true,
+	"is":   true,
+	"are":  true,
+	"was":  true,
+	"were": true,
+	"be":   true,
+	"been": true,
+}
+
+type DocID struct {
+	title    string
+	fileName string
+	length   int
+}
+
+type Posting struct {
+	docID DocID
+	count int
+}
 
 // Check for errors and exit if they occur
 func error_check(err error) {
@@ -16,6 +49,14 @@ func error_check(err error) {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
+}
+
+// isSeparator returns true for runes that should *split* tokens.
+// - Letters → false  (stay inside the token)
+// - Digits  → true   (acts as a boundary, so numbers are skipped)
+// - Everything else (punctuation, whitespace, symbols) → true
+func isSeparator(r rune) bool {
+	return !unicode.IsLetter(r)
 }
 
 // Parse the html, basically DFS on the DOM tree
@@ -27,12 +68,12 @@ func parse_html(doc *html.Node) string {
 		switch n.Type {
 		case html.TextNode:
 			data := strings.TrimSpace(n.Data)
-			if data != "" {
+			if data != "" && html.UnescapeString(data) != "" {
 				b.WriteString(data)
 				b.WriteByte(' ')
 			}
 		case html.ElementNode:
-			if n.Data == "script" || n.Data == "style" {
+			if n.Data == "script" || n.Data == "style" || n.Data == "head" {
 				return // skip non-visible content
 			}
 		}
@@ -57,13 +98,17 @@ func index_file(filePath string) {
 	html_string = parse_html(doc)
 	fmt.Println("Parsed html...\n Tokenizing...")
 
-	var m map[string]int
-	m = make(map[string]int)
-	for _, word := range strings.Split(html_string, " ") {
+	// Tokenize the html
+	var m = make(map[string]int)
+	for _, word := range strings.FieldsFunc(html_string, isSeparator) {
+		word = strings.Trim(strings.ToLower(word), ".,!?:;()[]\"'")
+		if COMMON_WORDS[word] {
+			continue
+		}
 		m[word]++
 	}
 
-	fmt.Println(m)
+	fmt.Println(len(m))
 
 }
 
