@@ -17,18 +17,12 @@ type DocMeta struct {
 
 // Posting represents a document's relevance for a term
 type Posting struct {
-	DocID int64
+	DocID []byte
 	Count int
 }
 
-// Global inverted index structure
-var postings map[string][]Posting
-
 // addToIndex merges a document's term frequency map into the global inverted index
-func addToIndex(docID int64, termFreq map[string]int) {
-	if len(postings) == 0 {
-		postings = make(map[string][]Posting)
-	}
+func addToIndex(docID []byte, termFreq map[string]int, postings map[string][]Posting) {
 	for term, count := range termFreq {
 		_, ok := postings[term]
 		if ok {
@@ -40,13 +34,8 @@ func addToIndex(docID int64, termFreq map[string]int) {
 	}
 }
 
-// getPostings retrieves postings for a given term
-func getPostings(term string) []Posting {
-	return postings[term]
-}
-
 // Index an html file using the modular functions
-func index_file(filePath string, fileName string, id int64) DocMeta {
+func index_file(filePath string, fileName string, id []byte, postings map[string][]Posting) DocMeta {
 	fmt.Println("Indexing: ", filePath)
 	content, err := os.ReadFile(filePath)
 	error_check(err)
@@ -65,7 +54,8 @@ func index_file(filePath string, fileName string, id int64) DocMeta {
 	termFreq := tokenise(text)
 
 	// add it to the index
-	addToIndex(id, termFreq)
+	addToIndex(id, termFreq, postings)
+	fmt.Println("Added to index...")
 
 	return docMeta
 }
