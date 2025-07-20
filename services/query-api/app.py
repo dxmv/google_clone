@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import httpx  # or requests
 
 app = FastAPI()
 app.add_middleware(
@@ -10,8 +11,12 @@ app.add_middleware(
   allow_headers = ["*"]
 )
 
+INDEXER_URL = "http://localhost:8080"
+
 class SearchRequest(BaseModel):
     query: str
+    count: int = 24
+
 
 @app.get("/")
 async def read_root():
@@ -19,4 +24,19 @@ async def read_root():
 
 @app.post("/api/search")
 async def search(request: SearchRequest):
-    return {"message": f"Received search query: {request.query}"}
+    query = request.query
+    count = request.count
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{INDEXER_URL}/search",
+            params={"q": query}
+        )
+        results = response.json()
+        if len(results) > count:
+            results = results[:count]
+    return results
+    
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

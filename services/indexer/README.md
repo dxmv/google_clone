@@ -6,7 +6,7 @@
         - [x] Persist docMeta
         - [x] Persists postings
 - [x] Search logic
-- [ ] Expose a serach function
+- [x] Expose a search endpoint
 
 
 ## Later:

@@ -2,9 +2,13 @@ package main
 
 import (
 	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
+
+	"log"
+	"net/http"
 )
 
 const CORPUS_DIR = "./corpus"
@@ -63,7 +67,12 @@ func main() {
 		fmt.Println("Saved postings...")
 	}
 
-	// TODO: Add minimal HTTP handler for search API
-	results := search("python language", 10, db)
-	fmt.Println(results)
+	http.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query().Get("q")
+		results := search(query, db)
+		json.NewEncoder(w).Encode(results)
+		fmt.Println("Results: ", results)
+	})
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
