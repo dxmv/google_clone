@@ -68,3 +68,18 @@ func getPostings(db *badger.DB, term string) []Posting {
 	})
 	return postings
 }
+
+func getMeta(db *badger.DB, docID []byte) DocMeta {
+	meta := DocMeta{}
+	db.View(func(txn *badger.Txn) error {
+		item, err := txn.Get(docID)
+		if err != nil {
+			return err
+		}
+		err = item.Value(func(val []byte) error {
+			return json.Unmarshal(val, &meta)
+		})
+		return err
+	})
+	return meta
+}

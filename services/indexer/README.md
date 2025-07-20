@@ -5,6 +5,11 @@
 - [x] Persist data on disk
         - [x] Persist docMeta
         - [x] Persists postings
-- [ ] Search logic
+- [x] Search logic
 - [ ] Expose a serach function
+
+
+## Later:
 - [ ] Concurrency
+- [ ] Better ranking
+- [ ] Cleaner code

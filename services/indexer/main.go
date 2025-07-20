@@ -64,5 +64,6 @@ func main() {
 	}
 
 	// TODO: Add minimal HTTP handler for search API
-	search("python language", 10, db)
+	results := search("python language", 10, db)
+	fmt.Println(results)
 }

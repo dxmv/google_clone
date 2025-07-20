@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
+	"sort"
 
 	badger "github.com/dgraph-io/badger/v4"
 )
 
 // SearchResult represents a search result with score
 type SearchResult struct {
-	docMeta DocMeta
-	score   float64
+	docMeta   DocMeta
+	score     float64
+	countTerm int
 }
 
 // search performs search query and returns top k results
@@ -22,14 +24,41 @@ func search(query string, k int, db *badger.DB) []SearchResult {
 	fmt.Println("Query terms: ", queryTerms)
 
 	// for each term, fetch postings
-	var postingsForQuery []Posting
+	docMap := make(map[string]SearchResult)
 	for term, _ := range queryTerms {
-		postingsForQuery = append(postingsForQuery, getPostings(db, term)...)
+		posting := getPostings(db, term)
+		for _, posting := range posting {
+			if _, ok := docMap[string(posting.DocID)]; !ok {
+				docMap[string(posting.DocID)] = SearchResult{
+					countTerm: 0,
+					score:     0,
+					docMeta:   getMeta(db, posting.DocID),
+				}
+			}
+			docMap[string(posting.DocID)] = SearchResult{
+				countTerm: docMap[string(posting.DocID)].countTerm + 1,
+				score:     docMap[string(posting.DocID)].score + float64(posting.Count),
+				docMeta:   docMap[string(posting.DocID)].docMeta,
+			}
+		}
 	}
-	fmt.Println("Postings for query: ", postingsForQuery[0].DocID, postingsForQuery[0].Count)
 
-	// score documents
+	// filter only docs that contain all terms
+	for _, result := range docMap {
+		if result.countTerm == len(queryTerms) {
+			results = append(results, result)
+		}
+	}
 
-	// rank and return top k results
+	// sort by score
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].score > results[j].score
+	})
+
+	// keep only top k results
+	if len(results) > k {
+		results = results[:k]
+	}
+
 	return results
 }
