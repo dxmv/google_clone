@@ -13,7 +13,7 @@
 
 1. **Minimal crawler service (Python or Go)**
 
-   - [ ] BFS from a seed list, polite delay, robots.txt compliance.
+   - [x] BFS from a seed list
    - [ ] Store raw HTML + discovery metadata (`url`, status, fetch time) in object storage (local FS/S3/MinIO).
 2. **Metadata extractor worker**
 
