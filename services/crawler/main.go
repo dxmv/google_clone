@@ -25,8 +25,16 @@ func main() {
 		}
 		visited[job.URL] = true
 		fmt.Println("Visiting: ", job)
+		// get the html from the url
+		body, err := getHtmlFromURL(job.URL)
+		if err != nil {
+			fmt.Println("Error getting HTML from URL: ", err)
+			continue
+		}
 		// get links from the page and enqueue them
-		links := getLinks(job.URL)
+		links := getLinks(body)
+		// save the page to a file
+		savePage(job.URL, job.Depth, len(links), body)
 		for _, link := range links {
 			// dont enqueue if already visited
 			if visited[link] {

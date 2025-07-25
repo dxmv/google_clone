@@ -14,7 +14,7 @@
 1. **Minimal crawler service (Python or Go)**
 
    - [x] BFS from a seed list
-   - [ ] Store raw HTML + discovery metadata (`url`, status, fetch time) in object storage (local FS/S3/MinIO).
+   - [x] Store raw HTML + discovery metadata (`url`, status, fetch time) in object storage (local FS/S3/MinIO).
 2. **Metadata extractor worker**
 
    - [ ] Parse raw HTML → output JSON `{url, title, meta_desc, clean_text}`.

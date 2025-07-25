@@ -3,36 +3,11 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io"
-	"net/http"
-	"strings"
 
 	"golang.org/x/net/html"
 )
 
-func getLinks(url string) []string {
-	resp, err := http.Get(url)
-	// get the html of page
-	if err != nil {
-		fmt.Println("Error fetching URL: ", err)
-		return []string{}
-	}
-	defer resp.Body.Close()
-	// skip if not 200 or not html
-	if resp.StatusCode != 200 {
-		fmt.Println("Error fetching URL: ", resp.StatusCode)
-		return []string{}
-	}
-	if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
-		fmt.Println("Not a HTML page")
-		return []string{}
-	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("Error reading body: ", err)
-		return []string{}
-	}
-
+func getLinks(body []byte) []string {
 	doc, err := html.Parse(bytes.NewReader(body))
 	if err != nil {
 		fmt.Println("Error parsing HTML: ", err)
