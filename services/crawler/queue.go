@@ -18,17 +18,14 @@ func (j Job) String() string {
 
 // enqueue a job
 func (q *JobQueue) Enqueue(job Job) {
-	fmt.Println("Enqueuing job: ", job)
 	q.queue = append(q.queue, job)
 }
 
 // dequeue a job
 func (q *JobQueue) Dequeue() Job {
 	if len(q.queue) == 0 {
-		fmt.Println("Queue is empty")
 		return Job{}
 	}
-	fmt.Println("Dequeuing job: ", q.queue[0])
 	job := q.queue[0]
 	q.queue = q.queue[1:]
 	return job

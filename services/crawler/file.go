@@ -12,10 +12,12 @@ import (
 )
 
 type Metadata struct {
-	URL           string `json:"url"`
-	Depth         int    `json:"depth"`
-	LengthOfLinks int    `json:"length_of_links"`
-	ContentLength int    `json:"content_length"`
+	URL             string `json:"url"`
+	Depth           int    `json:"depth"`
+	LengthOfLinks   int    `json:"length_of_links"`
+	Title           string `json:"title"`
+	MetaDescription string `json:"meta_description"`
+	ContentLength   int    `json:"content_length"`
 }
 
 func getHtmlFromURL(url string) ([]byte, error) {
@@ -43,13 +45,7 @@ func getHtmlFromURL(url string) ([]byte, error) {
 	return body, nil
 }
 
-func savePage(url string, depth int, numLinks int, body []byte) error {
-	// hash the url
-	hash := sha256.Sum256([]byte(url))
-	hashString := hex.EncodeToString(hash[:])
-
-	fmt.Println("Hash: ", hashString)
-	// make the directories if they don't exist
+func createDirectories() error {
 	err := ensureDir("pages")
 	if err != nil {
 		return err
@@ -58,8 +54,17 @@ func savePage(url string, depth int, numLinks int, body []byte) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func savePage(url string, depth int, parseResult ParseResult, body []byte) error {
+	// hash the url
+	hash := sha256.Sum256([]byte(url))
+	hashString := hex.EncodeToString(hash[:])
+
+	fmt.Println("Hash: ", hashString)
 	// save the html to <hash>.html in pages directory
-	err = saveBytesToFile("pages/"+hashString+".html", body)
+	err := saveBytesToFile("pages/"+hashString+".html", body)
 	if err != nil {
 		fmt.Println("Error saving HTML to file: ", err)
 		return err
@@ -67,10 +72,12 @@ func savePage(url string, depth int, numLinks int, body []byte) error {
 	// save the metadata to <hash>.json in metadata directory
 	// first we need to create the metadata
 	metadata := Metadata{
-		URL:           url,
-		Depth:         depth,
-		LengthOfLinks: numLinks,
-		ContentLength: len(body),
+		URL:             url,
+		Depth:           depth,
+		LengthOfLinks:   len(parseResult.Links),
+		Title:           parseResult.Title,
+		MetaDescription: parseResult.MetaDescription,
+		ContentLength:   len(body),
 	}
 	json, err := json.MarshalIndent(metadata, "", "  ")
 	if err != nil {

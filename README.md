@@ -11,31 +11,28 @@
 
 ## Phase 1 – **Find things** (Crawler V1)
 
-1. **Minimal crawler service (Python or Go)**
+1. **Minimal crawler**
 
    - [x] BFS from a seed list
    - [x] Store raw HTML + discovery metadata (`url`, status, fetch time) in object storage (local FS/S3/MinIO).
-2. **Metadata extractor worker**
-
-   - [ ] Parse raw HTML → output JSON `{url, title, meta_desc, clean_text}`.
-   - [ ] Kafka or Redis queue decouples crawling from extraction.
-3. **Index pipe**
-
-   - [ ] POST extractor output to the Go indexer (HTTP for now).
+2. **Complex extraction**
+   - [x] Extract meta_title, meta_description and outlinks and store them in the metadata
+   - [x] Skip some links like 'mailto:', and handle relative links like '/about'
+   - [ ] Add a better delay to avoid getting IP blocked
+   - [ ] Expose a new '/ingest' endpoint in indexer which will save all of the pages and metadata in it
+   - [ ] POST the pages and metadata to the Go indexer (HTTP for now).
 
 **Milestone:** Search across ≈50 k pages with snippets.
-
 ---
 
 ## Phase 2 – **Talk better** (Service Mesh & Protocols)
 
-1. Migrate ad‑hoc HTTP calls to **gRPC**:
+- [ ] Use gRPC instead of HTTP for service communication
+- [ ] Maintain shared **proto** definitions; generate stubs for Go & Python (Buf or `protoc`).
+- [ ] Add pagination to the query-api
+- [ ] Add a simple search results page, that uses pagination
 
-   - [ ] `Crawler ↔ Extractor`, `Extractor ↔ Indexer`, `QueryAPI ↔ Ranker`.
-2. Maintain shared **proto** definitions; generate stubs for Go & Python (Buf or `protoc`).
-
-**Milestone:** Same UX, all services speak gRPC; Grafana shows <50 ms p50 latency.
-
+**Milestone:** All services speak gRPC and we have a working demo
 ---
 
 ## Phase 3 – **Rank smarter**
@@ -52,17 +49,15 @@
    - [ ] YAML gold‑set; compute NDCG / MAP in CI; fail on regressions.
 
 **Milestone:** Side‑by‑side relevance improvement with metrics.
-
 ---
 
 ## Phase 4 – **Scale the crawl**
 
 1. **Crawler V2**
-
+   - [ ] Extract the imagelinks and backlinks
    - [ ] Redis frontier (URL, depth, priority).
    - [ ] Stateless workers; content‑hash deduplication.
 2. **Incremental indexing**
-
    - [ ] Write new segments; background merge.
    - [ ] TTL old pages and re‑crawl on expiry.
 

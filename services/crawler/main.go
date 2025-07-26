@@ -1,16 +1,26 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
 
-const MAX_DEPTH = 1
+const MAX_DEPTH = 2
 
 var STARTING_LINKS = []string{
-	"https://sydneychiropractorcbd.com.au",
+	"https://ubuntu.com",
 }
 
 var visited = make(map[string]bool)
 
 func main() {
+	// create the directories if they don't exist
+	err := createDirectories()
+	if err != nil {
+		fmt.Println("Error creating directories: ", err)
+		return
+	}
 	// do a simple BFS from starting links
 	queue := JobQueue{}
 	for _, link := range STARTING_LINKS {
@@ -26,25 +36,28 @@ func main() {
 		visited[job.URL] = true
 		fmt.Println("Visiting: ", job)
 		// get the html from the url
+		delay := 3*time.Second + time.Duration(rand.Intn(500))*time.Millisecond
+		time.Sleep(delay)
 		body, err := getHtmlFromURL(job.URL)
 		if err != nil {
 			fmt.Println("Error getting HTML from URL: ", err)
 			continue
 		}
 		// get links from the page and enqueue them
-		links := getLinks(body)
+		parseResult := parsePage(body, job.URL)
 		// save the page to a file
-		savePage(job.URL, job.Depth, len(links), body)
-		for _, link := range links {
+		savePage(job.URL, job.Depth, parseResult, body)
+		for _, link := range parseResult.Links {
 			// dont enqueue if already visited
 			if visited[link] {
 				continue
 			}
 			queue.Enqueue(Job{URL: link, Depth: job.Depth + 1})
 		}
+		fmt.Println("Visited: ", len(visited))
+		fmt.Println("--------------------------------\n\n\n")
 	}
 	fmt.Println("\n\n\n\n--------------------------------")
-	fmt.Println("Visited: ", len(visited))
 	// print all visited links
 	for link := range visited {
 		fmt.Println(link)
