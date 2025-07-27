@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -31,11 +32,11 @@ func getHtmlFromURL(url string) ([]byte, error) {
 	// skip if not 200 or not html
 	if resp.StatusCode != 200 {
 		fmt.Println("Error fetching URL: ", resp.StatusCode)
-		return nil, err
+		return nil, errors.New("not a 200 status code")
 	}
 	if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
 		fmt.Println("Not a HTML page")
-		return nil, err
+		return nil, errors.New("not a HTML page")
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

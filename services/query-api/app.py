@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx  # or requests
+import uvicorn
 
 app = FastAPI()
 app.add_middleware(
@@ -38,5 +39,4 @@ async def search(request: SearchRequest):
     return results
     
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

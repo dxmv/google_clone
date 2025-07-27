@@ -11,7 +11,8 @@ import (
 	"net/http"
 )
 
-const CORPUS_DIR = "./corpus"
+const PAGES_DIR = "../crawler/pages"
+const METADATA_DIR = "../crawler/metadata"
 
 // Check for errors and exit if they occur
 func error_check(err error) {
@@ -29,7 +30,7 @@ func main() {
 	// TODO: Add CLI flags for different operations (index, search, serve)
 
 	// Read the corpus directory
-	files, err := os.ReadDir(CORPUS_DIR)
+	files, err := os.ReadDir(PAGES_DIR)
 	error_check(err)
 
 	db, err := openDB()
@@ -40,7 +41,16 @@ func main() {
 
 	// Index each file
 	for _, file := range files {
-		filePath := fmt.Sprintf("%s/%s", CORPUS_DIR, file.Name())
+		filePath := fmt.Sprintf("%s/%s", PAGES_DIR, file.Name())
+		// get the metadata file
+		// metadataFilePath := fmt.Sprintf("%s/%s", METADATA_DIR, file.Name())
+		// metadataFile, err := os.ReadFile(metadataFilePath)
+		// error_check(err)
+		// var metadata DocMeta
+		// err = json.Unmarshal(metadataFile, &metadata)
+		// error_check(err)
+		// fmt.Println("Metadata: ", metadata)
+
 		if strings.HasSuffix(filePath, ".html") {
 			hash.Write([]byte(filePath))
 			docId := hash.Sum(nil)

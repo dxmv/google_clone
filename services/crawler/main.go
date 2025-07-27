@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-const MAX_DEPTH = 2
+const MAX_DEPTH = 3
 
 var STARTING_LINKS = []string{
-	"https://ubuntu.com",
+	"https://en.wikipedia.org/wiki/World_War_II",
 }
 
 var visited = make(map[string]bool)
@@ -35,9 +35,11 @@ func main() {
 		}
 		visited[job.URL] = true
 		fmt.Println("Visiting: ", job)
-		// get the html from the url
+		// add a delay to avoid getting IP blocked
 		delay := 3*time.Second + time.Duration(rand.Intn(500))*time.Millisecond
 		time.Sleep(delay)
+
+		// get the html from the url
 		body, err := getHtmlFromURL(job.URL)
 		if err != nil {
 			fmt.Println("Error getting HTML from URL: ", err)

@@ -18,11 +18,10 @@
 2. **Complex extraction**
    - [x] Extract meta_title, meta_description and outlinks and store them in the metadata
    - [x] Skip some links like 'mailto:', and handle relative links like '/about'
-   - [ ] Add a better delay to avoid getting IP blocked
-   - [ ] Expose a new '/ingest' endpoint in indexer which will save all of the pages and metadata in it
-   - [ ] POST the pages and metadata to the Go indexer (HTTP for now).
+   - [x] Do a simple delay between requests
+   - [ ] In index, use the crawleded pages & their metadata (remove the old docmeta logic)
 
-**Milestone:** Search across ≈50 k pages with snippets.
+**Milestone:** Crawl across ≈10 k
 ---
 
 ## Phase 2 – **Talk better** (Service Mesh & Protocols)
@@ -54,6 +53,7 @@
 ## Phase 4 – **Scale the crawl**
 
 1. **Crawler V2**
+   - [ ] Make the delay better
    - [ ] Extract the imagelinks and backlinks
    - [ ] Redis frontier (URL, depth, priority).
    - [ ] Stateless workers; content‑hash deduplication.
