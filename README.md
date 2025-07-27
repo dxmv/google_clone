@@ -12,16 +12,16 @@
 ## Phase 1 – **Find things** (Crawler V1)
 
 1. **Minimal crawler**
-
-   - [x] BFS from a seed list
-   - [x] Store raw HTML + discovery metadata (`url`, status, fetch time) in object storage (local FS/S3/MinIO).
-2. **Complex extraction**
-   - [x] Extract meta_title, meta_description and outlinks and store them in the metadata
-   - [x] Skip some links like 'mailto:', and handle relative links like '/about'
-   - [x] Do a simple delay between requests
+   - [ ] BFS from a seed list
+   - [ ] Only work with wikipedia for now
+   - [ ] Skip some links like 'mailto:', and handle relative links 
+   - [ ] Do a simple delay between requests
+   - [ ] Store raw HTML + discovery metadata (`url`, status, fetch time) in object storage (local FS/S3/MinIO).
+2. **Extraction**
+   - [ ] Extract meta_title, meta_description and outlinks and store them in the metadata
    - [ ] In index, use the crawleded pages & their metadata (remove the old docmeta logic)
 
-**Milestone:** Crawl across ≈10 k
+**Milestone:** Crawl across ~10k pages & test search on the frontend
 ---
 
 ## Phase 2 – **Talk better** (Service Mesh & Protocols)
@@ -37,14 +37,11 @@
 ## Phase 3 – **Rank smarter**
 
 1. **Ranking service (C++)**
-
    - [ ] BM25 + field boosts.
    - [ ] gRPC: `RankDocuments(req{query_terms, candidate_ids}) → ranked_ids`.
 2. **Indexer changes**
-
    - [ ] Return top‑*N* candidates quickly and call Ranker for final ordering.
 3. **Evaluation harness**
-
    - [ ] YAML gold‑set; compute NDCG / MAP in CI; fail on regressions.
 
 **Milestone:** Side‑by‑side relevance improvement with metrics.
@@ -54,6 +51,7 @@
 
 1. **Crawler V2**
    - [ ] Make the delay better
+   - [ ] Work with the whole world wide web
    - [ ] Extract the imagelinks and backlinks
    - [ ] Redis frontier (URL, depth, priority).
    - [ ] Stateless workers; content‑hash deduplication.
@@ -87,11 +85,9 @@
 ## Phase 6 – **Verticals & advanced toys**
 
 1. **News tab**
-
    - [ ] RSS fetcher → extractor/indexer; tag docs `type=news`.
    - [ ] Freshness boost in Ranker.
 2. **Images tab**
-
    - [ ] Download `<img>` sources; compute pHash; index via LSH.
 
 **Milestone:** Instant tab switching; image similarity search demo.
