@@ -12,13 +12,11 @@
 ## Phase 1 – **Find things** (Crawler V1)
 
 1. **Minimal crawler**
-   - [ ] BFS from a seed list
-   - [ ] Only work with wikipedia for now
-   - [ ] Skip some links like 'mailto:', and handle relative links 
-   - [ ] Do a simple delay between requests
-   - [ ] Store raw HTML + discovery metadata (`url`, status, fetch time) in object storage (local FS/S3/MinIO).
+   - [x] BFS from a seed list (only work with wikipedia for now)
+   - [ ] Skip some links like 'mailto:', 'tel:', '#...' and handle relative links 
+   - [x] Store raw HTML 
 2. **Extraction**
-   - [ ] Extract meta_title, meta_description and outlinks and store them in the metadata
+   - [ ] Extract metadata from html (title,meta_description,outlinks,depth,url)
    - [ ] In index, use the crawleded pages & their metadata (remove the old docmeta logic)
 
 **Milestone:** Crawl across ~10k pages & test search on the frontend
