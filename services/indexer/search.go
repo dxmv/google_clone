@@ -9,9 +9,9 @@ import (
 
 // SearchResult represents a search result with score
 type SearchResult struct {
-	DocMeta   DocMeta `json:"docMeta"`
-	Score     float64 `json:"score"`
-	CountTerm int     `json:"countTerm"`
+	DocMetadata DocMetadata `json:"docMeta"`
+	Score       float64     `json:"score"`
+	CountTerm   int         `json:"countTerm"`
 }
 
 // search performs search query and returns top k results
@@ -30,15 +30,15 @@ func search(query string, db *badger.DB) []SearchResult {
 		for _, posting := range posting {
 			if _, ok := docMap[string(posting.DocID)]; !ok {
 				docMap[string(posting.DocID)] = SearchResult{
-					CountTerm: 0,
-					Score:     0,
-					DocMeta:   getMeta(db, posting.DocID),
+					CountTerm:   0,
+					Score:       0,
+					DocMetadata: getMetadata(db, posting.DocID),
 				}
 			}
 			docMap[string(posting.DocID)] = SearchResult{
-				CountTerm: docMap[string(posting.DocID)].CountTerm + 1,
-				Score:     docMap[string(posting.DocID)].Score + float64(posting.Count),
-				DocMeta:   docMap[string(posting.DocID)].DocMeta,
+				CountTerm:   docMap[string(posting.DocID)].CountTerm + 1,
+				Score:       docMap[string(posting.DocID)].Score + float64(posting.Count),
+				DocMetadata: docMap[string(posting.DocID)].DocMetadata,
 			}
 		}
 	}

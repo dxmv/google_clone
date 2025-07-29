@@ -38,8 +38,23 @@ func savePostings(db *badger.DB, postings map[string][]Posting) error {
 	return err
 }
 
-// saveDocMeta saves document metadata to the database
-func saveDocMeta(db *badger.DB, docID []byte, docMeta DocMeta) error {
+func savePosting(db *badger.DB, term []byte, posting Posting) error {
+	err := db.Update(func(txn *badger.Txn) error {
+		postingBytes, err := json.Marshal(posting)
+		if err != nil {
+			return err
+		}
+		err = txn.Set(term, postingBytes)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
+}
+
+// saveMetadata saves document metadata to the database
+func saveMetadata(db *badger.DB, docID []byte, docMeta DocMetadata) error {
 	err := db.Update(func(txn *badger.Txn) error {
 		docMetaBytes, err := json.Marshal(docMeta)
 		if err != nil {
@@ -69,8 +84,8 @@ func getPostings(db *badger.DB, term string) []Posting {
 	return postings
 }
 
-func getMeta(db *badger.DB, docID []byte) DocMeta {
-	meta := DocMeta{}
+func getMetadata(db *badger.DB, docID []byte) DocMetadata {
+	meta := DocMetadata{}
 	db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get(docID)
 		if err != nil {

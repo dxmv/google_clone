@@ -8,13 +8,6 @@ import (
 	"golang.org/x/net/html"
 )
 
-// DocID represents document metadata
-type DocMeta struct {
-	Title    string
-	FilePath string
-	Length   int
-}
-
 // Posting represents a document's relevance for a term
 type Posting struct {
 	DocID []byte
@@ -35,7 +28,7 @@ func addToIndex(docID []byte, termFreq map[string]int, postings map[string][]Pos
 }
 
 // Index an html file using the modular functions
-func index_file(filePath string, fileName string, id []byte, postings map[string][]Posting) DocMeta {
+func index_file(filePath string, id []byte, postings map[string][]Posting) {
 	fmt.Println("Indexing: ", filePath)
 	content, err := os.ReadFile(filePath)
 	error_check(err)
@@ -50,12 +43,11 @@ func index_file(filePath string, fileName string, id []byte, postings map[string
 	fmt.Println("Parsed html...\nTokenizing...")
 
 	// Tokenize the text
-	docMeta := DocMeta{Title: fileName, FilePath: filePath, Length: len(text)}
 	termFreq := tokenise(text)
 
 	// add it to the index
 	addToIndex(id, termFreq, postings)
 	fmt.Println("Added to index...")
 
-	return docMeta
+	return
 }

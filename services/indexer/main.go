@@ -1,15 +1,21 @@
 package main
 
 import (
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 
 	"log"
 	"net/http"
 )
+
+type DocMetadata struct {
+	URL   string
+	Depth int
+	Title string
+	Hash  string
+	Links []string
+}
 
 const PAGES_DIR = "../crawler/pages"
 const METADATA_DIR = "../crawler/metadata"
@@ -27,49 +33,44 @@ var postings map[string][]Posting
 func main() {
 	// Initialize the postings map
 	postings = make(map[string][]Posting)
-	// TODO: Add CLI flags for different operations (index, search, serve)
 
-	// Read the corpus directory
-	files, err := os.ReadDir(PAGES_DIR)
+	// Read the metadata directory
+	files, err := os.ReadDir(METADATA_DIR)
 	error_check(err)
 
+	// Open the Badger database
 	db, err := openDB()
 	error_check(err)
 	defer db.Close()
 
-	hash := sha256.New()
-
 	// Index each file
 	for _, file := range files {
-		filePath := fmt.Sprintf("%s/%s", PAGES_DIR, file.Name())
-		// get the metadata file
-		// metadataFilePath := fmt.Sprintf("%s/%s", METADATA_DIR, file.Name())
-		// metadataFile, err := os.ReadFile(metadataFilePath)
-		// error_check(err)
-		// var metadata DocMeta
-		// err = json.Unmarshal(metadataFile, &metadata)
-		// error_check(err)
-		// fmt.Println("Metadata: ", metadata)
+		// open the metadata file
+		metadataFilePath := fmt.Sprintf("%s/%s", METADATA_DIR, file.Name())
+		metadataFile, err := os.ReadFile(metadataFilePath)
+		error_check(err)
+		var metadata DocMetadata
+		err = json.Unmarshal(metadataFile, &metadata)
+		error_check(err)
 
-		if strings.HasSuffix(filePath, ".html") {
-			hash.Write([]byte(filePath))
-			docId := hash.Sum(nil)
-			docMeta := index_file(filePath, file.Name(), docId, postings)
-			err := saveDocMeta(db, docId, docMeta)
+		// index the html file
+		hash := metadata.Hash
+		htmlFilePath := fmt.Sprintf("%s/%s", PAGES_DIR, hash+".html")
+		index_file(htmlFilePath, []byte(hash), postings)
+		fmt.Println("Indexed: ", metadata.Title, "with hash: ", hash)
+		// save the metadata to the Badger database
+		err = saveMetadata(db, []byte(hash), metadata)
+		error_check(err)
 
-			if err != nil {
-				fmt.Println("Error saving docmeta: ", err)
-			} else {
-				fmt.Println("Saved docmeta: ", docId)
-			}
-		} else {
-			fmt.Println("Skipping: ", filePath)
-		}
 	}
 
 	fmt.Printf("Total terms indexed: %d\n", len(postings))
 
-	err = savePostings(db, postings)
+	for term, postingsList := range postings {
+		singleTermMap := map[string][]Posting{term: postingsList}
+		err = savePostings(db, singleTermMap)
+		error_check(err)
+	}
 
 	if err != nil {
 		fmt.Println("Error saving postings: ", err)

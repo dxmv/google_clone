@@ -19,7 +19,6 @@ type DocMetadata struct {
 	URL   string
 	Depth int
 	Title string
-	// Meta_Description string
 	Hash  string
 	Links []string
 }
