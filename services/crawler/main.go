@@ -1,108 +1,32 @@
 package main
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"io"
-	"net/http"
-	"os"
-	"strings"
-
-	"golang.org/x/net/html"
 )
 
 var START_LINKS = []string{
-	"https://en.wikipedia.org/wiki/Wikipedia:Vital_articles/Level/1",
+	"https://en.wikipedia.org/wiki/Philosophy",
 }
-
-const PAGES_DIR = "pages"
 
 type Job struct {
 	URL   string
 	Depth int
 }
 
-// Returns the body of the page
-func fetch(url string) ([]byte, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	// Check if the response is successful
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("status code: %d", resp.StatusCode)
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	return body, nil
-}
-
-func handleHref(href string) (string, error) {
-	if href == "" {
-		return "", fmt.Errorf("href is empty")
-	}
-	if strings.HasPrefix(href, "#") {
-		return "", fmt.Errorf("href " + href + " is a fragment")
-	}
-	res := ""
-	if strings.HasPrefix(href, "/") {
-		res = "https://en.wikipedia.org" + href
-	}
-	return res, nil
-}
-
-// Returns the links on the page
-func extractLinks(body []byte) []string {
-
-	var links []string
-
-	var traverse func(*html.Node)
-	traverse = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "a" {
-			for _, attr := range n.Attr {
-				if attr.Key == "href" {
-					href, err := handleHref(attr.Val)
-					if err != nil {
-						fmt.Println("Error handling href", attr.Val, err)
-						continue
-					}
-					links = append(links, href)
-				}
-			}
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			traverse(c)
-		}
-	}
-	doc, err := html.Parse(bytes.NewReader(body))
-	if err != nil {
-		fmt.Println("Error parsing", err)
-		return []string{}
-	}
-	traverse(doc)
-	return links
-}
-
-func saveHTML(hash string, body []byte) error {
-	path := PAGES_DIR + "/" + hash + ".html"
-	return os.WriteFile(path, body, 0644)
-}
-
-func createDirectory(name string) error {
-	if _, err := os.Stat(name); os.IsNotExist(err) {
-		return os.Mkdir(name, 0755)
-	}
-	fmt.Println("Directory", name, "already exists")
-	return nil
+type DocMetadata struct {
+	URL   string
+	Depth int
+	Title string
+	// Meta_Description string
+	Hash  string
+	Links []string
 }
 
 func main() {
 	createDirectory(PAGES_DIR)
+	createDirectory(METADATA_DIR)
 
 	visited := make(map[string]bool)
 	queue := Queue[Job]{}
@@ -121,20 +45,39 @@ func main() {
 		}
 		visited[job.URL] = true
 		fmt.Println("Visiting", job.URL)
+
+		docMetadata := DocMetadata{
+			URL:   job.URL,
+			Depth: job.Depth,
+			Title: "",
+			Hash:  "",
+		}
+		// get the html
 		body, err := fetch(job.URL)
 		if err != nil {
 			fmt.Println("Error getting HTML from", job.URL, err)
 			continue
 		}
-		links := extractLinks(body)
+
+		// extract the links from the html
+		links := extractLinks(body, &docMetadata)
+		docMetadata.Links = links
 		for _, link := range links {
 			queue.Enqueue(Job{URL: link, Depth: job.Depth + 1})
 		}
+		// save the html
 		hash := sha256.Sum256(body)
 		err = saveHTML(hex.EncodeToString(hash[:]), body)
 		if err != nil {
 			fmt.Println("Error saving HTML", err)
 		}
+		// save metadata
+		docMetadata.Hash = hex.EncodeToString(hash[:])
+		err = saveMetadata(docMetadata)
+		if err != nil {
+			fmt.Println("Error saving metadata", err)
+		}
+
 		fmt.Println("Visited", len(visited))
 		fmt.Println("--------------------------------\n\n")
 	}

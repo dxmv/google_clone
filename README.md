@@ -13,13 +13,14 @@
 
 1. **Minimal crawler**
    - [x] BFS from a seed list (only work with wikipedia for now)
-   - [ ] Skip some links like 'mailto:', 'tel:', '#...' and handle relative links 
+   - [x] Skip some links like '#...' and handle relative links 
    - [x] Store raw HTML 
 2. **Extraction**
-   - [ ] Extract metadata from html (title,meta_description,outlinks,depth,url)
+   - [x] Extract metadata from html (title,meta_description,outlinks,depth,url)
+   - [ ] Clean up the crawler code
    - [ ] In index, use the crawleded pages & their metadata (remove the old docmeta logic)
 
-**Milestone:** Crawl across ~10k pages & test search on the frontend
+**Milestone:** Crawl across ~1k pages & test search on the frontend
 ---
 
 ## Phase 2 – **Talk better** (Service Mesh & Protocols)
@@ -49,10 +50,10 @@
 
 1. **Crawler V2**
    - [ ] Make the delay better
+   - [ ] Extract meta description too
    - [ ] Work with the whole world wide web
    - [ ] Extract the imagelinks and backlinks
-   - [ ] Redis frontier (URL, depth, priority).
-   - [ ] Stateless workers; content‑hash deduplication.
+   - [ ] Store the metadata and html somewhere else
 2. **Incremental indexing**
    - [ ] Write new segments; background merge.
    - [ ] TTL old pages and re‑crawl on expiry.
