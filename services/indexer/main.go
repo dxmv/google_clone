@@ -92,12 +92,31 @@ func main1() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-type healthServer struct {
-	pb.UnimplementedHealthServer
+type searchServer struct {
+	pb.UnimplementedSearchServer
 }
 
-func (s *healthServer) Ping(ctx context.Context, _ *pb.PingRequest) (*pb.PingResponse, error) {
-	return &pb.PingResponse{Ok: true}, nil
+func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
+	db, err := openDB()
+	error_check(err)
+	defer db.Close()
+
+	results := search(req.Query, db)
+	finalResults := make([]*pb.SearchResult, len(results))
+	for i, result := range results {
+		finalResults[i] = &pb.SearchResult{
+			Doc: &pb.DocMetadata{
+				Url:   result.DocMetadata.URL,
+				Depth: int32(result.DocMetadata.Depth),
+				Title: result.DocMetadata.Title,
+				Hash:  result.DocMetadata.Hash,
+				Links: result.DocMetadata.Links,
+			},
+			Score:     result.Score,
+			TermCount: int32(result.CountTerm),
+		}
+	}
+	return &pb.SearchResponse{Results: finalResults}, nil
 }
 
 func main() {
@@ -107,6 +126,6 @@ func main() {
 	}
 	fmt.Println("Server is running on port 50051")
 	grpcServer := grpc.NewServer()
-	pb.RegisterHealthServer(grpcServer, &healthServer{})
+	pb.RegisterSearchServer(grpcServer, &searchServer{})
 	grpcServer.Serve(lis)
 }

@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package search;
+option go_package = "google-clone/services/indexer/pb;pb";        
+
+service Search {
+        rpc SearchQuery (SearchRequest) returns (SearchResponse);
+}
+
+message SearchRequest {
+        string query = 1;
+}
+message SearchResponse {
+        repeated SearchResult results = 1; 
+}
+
+message SearchResult {
+        DocMetadata doc   = 1;
+        double      score = 2;         // float64 in Go
+        int32       term_count = 3;    // how many query terms matched
+}
+
+message DocMetadata {
+        string url    = 1;
+        int32  depth  = 2;
+        string title  = 3;
+        string hash   = 4;
+        repeated string links = 5;
+}

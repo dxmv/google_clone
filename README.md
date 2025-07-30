@@ -25,8 +25,8 @@
 
 ## Phase 2 – **Talk better** 
 
-- [ ] Make a simple gRPC ping-pong communication between the query-api and indexer, just to see how gRPC works
-- [ ] Draft the new search .proto 
+- [x] Make a simple gRPC ping-pong communication between the query-api and indexer, just to see how gRPC works
+- [x] Draft the new search .proto 
 - [ ] gRPC between QueryApi -> Indexer
 - [ ] Add pagination to the query-api
 - [ ] Add a simple search results page, that uses pagination

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import httpx  # or requests
 import uvicorn
 import grpc
-from pb import ping_pb2_grpc,ping_pb2
+from pb import search_pb2_grpc, search_pb2
 
 app = FastAPI()
 app.add_middleware(
@@ -42,7 +42,7 @@ async def search(request: SearchRequest):
     
 if __name__ == "__main__":
     channel = grpc.insecure_channel("localhost:50051")
-    stub = ping_pb2_grpc.HealthStub(channel)
-    response = stub.Ping(ping_pb2.PingRequest())
-    print(response)
+    stub = search_pb2_grpc.SearchStub(channel)
+    response = stub.SearchQuery(search_pb2.SearchRequest(query="hello"))
+    print(len(response.results))
     # uvicorn.run(app, host="0.0.0.0", port=8000)
