@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx  # or requests
 import uvicorn
+import grpc
+from pb import ping_pb2_grpc,ping_pb2
 
 app = FastAPI()
 app.add_middleware(
@@ -39,4 +41,8 @@ async def search(request: SearchRequest):
     return results
     
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    channel = grpc.insecure_channel("localhost:50051")
+    stub = ping_pb2_grpc.HealthStub(channel)
+    response = stub.Ping(ping_pb2.PingRequest())
+    print(response)
+    # uvicorn.run(app, host="0.0.0.0", port=8000)

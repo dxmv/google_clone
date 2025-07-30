@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"net"
+	"net/http"
 	"os"
 
-	"log"
-	"net/http"
+	"github.com/dxmv/google_clone/pb"
+	"google.golang.org/grpc"
 )
 
 type DocMetadata struct {
@@ -30,7 +34,7 @@ func error_check(err error) {
 // Global inverted index structure
 var postings map[string][]Posting
 
-func main() {
+func main1() {
 	// Initialize the postings map
 	postings = make(map[string][]Posting)
 
@@ -86,4 +90,23 @@ func main() {
 	})
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+type healthServer struct {
+	pb.UnimplementedHealthServer
+}
+
+func (s *healthServer) Ping(ctx context.Context, _ *pb.PingRequest) (*pb.PingResponse, error) {
+	return &pb.PingResponse{Ok: true}, nil
+}
+
+func main() {
+	lis, err := net.Listen("tcp", ":50051")
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	fmt.Println("Server is running on port 50051")
+	grpcServer := grpc.NewServer()
+	pb.RegisterHealthServer(grpcServer, &healthServer{})
+	grpcServer.Serve(lis)
 }

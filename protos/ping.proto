@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package ping;
+option go_package = "google-clone/services/indexer/pb;pb";  
+//  ^ repo-module-path                ^ folder where Go stubs land ^ import name
+
+service Health {
+  rpc Ping (PingRequest) returns (PingResponse);
+}
+
+message PingRequest {}
+message PingResponse { bool ok = 1; }

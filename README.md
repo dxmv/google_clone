@@ -17,20 +17,24 @@
    - [x] Store raw HTML 
 2. **Extraction**
    - [x] Extract metadata from html (title,meta_description,outlinks,depth,url)
-   - [ ] Clean up the crawler code
-   - [ ] In index, use the crawleded pages & their metadata (remove the old docmeta logic)
+   - [x] Clean up the crawler code
+   - [x] In index, use the crawleded pages & their metadata (remove the old docmeta logic)
 
 **Milestone:** Crawl across ~1k pages & test search on the frontend
 ---
 
-## Phase 2 – **Talk better** (Service Mesh & Protocols)
+## Phase 2 – **Talk better** 
 
-- [ ] Use gRPC instead of HTTP for service communication
-- [ ] Maintain shared **proto** definitions; generate stubs for Go & Python (Buf or `protoc`).
+- [ ] Make a simple gRPC ping-pong communication between the query-api and indexer, just to see how gRPC works
+- [ ] Draft the new search .proto 
+- [ ] gRPC between QueryApi -> Indexer
 - [ ] Add pagination to the query-api
 - [ ] Add a simple search results page, that uses pagination
+- [ ] Concurrency in query-api?
+- [ ] Concurrency in crawler
+- [ ] Concurrency in indexer
 
-**Milestone:** All services speak gRPC and we have a working demo
+**Milestone:** All services speak gRPC and we have a working frontend demo
 ---
 
 ## Phase 3 – **Rank smarter**
