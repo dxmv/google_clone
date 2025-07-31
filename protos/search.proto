@@ -9,15 +9,17 @@ service Search {
 
 message SearchRequest {
         string query = 1;
+        int32 page = 2;
+        int32 count = 3;
 }
 message SearchResponse {
         repeated SearchResult results = 1; 
 }
 
 message SearchResult {
-        DocMetadata doc   = 1;
-        double      score = 2;         // float64 in Go
-        int32       term_count = 3;    // how many query terms matched
+        DocMetadata Doc   = 1;
+        double      Score = 2;         
+        int32       TermCount = 3;   
 }
 
 message DocMetadata {

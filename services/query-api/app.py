@@ -18,31 +18,39 @@ INDEXER_URL = "http://localhost:8080"
 
 class SearchRequest(BaseModel):
     query: str
+    page: int = 1
     count: int = 24
 
-
-@app.get("/")
-async def read_root():
-    return {"message": "Hello World"}
 
 @app.post("/api/search")
 async def search(request: SearchRequest):
     query = request.query
-    count = request.count
+    page = request.page
+    count = request.count 
+
+    response = stub.SearchQuery(search_pb2.SearchRequest(query=query, page=page, count=count))
+    if not response or len(response.results) == 0:
+        return {"results": []}
     
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{INDEXER_URL}/search",
-            params={"q": query}
-        )
-        results = response.json()
-        if len(results) > count:
-            results = results[:count]
-    return results
+    # Convert protobuf objects to JSON-serializable dictionaries
+    results = []
+    for result in response.results:
+        result_dict = {
+            "doc": {
+                "url": result.Doc.url,
+                "depth": result.Doc.depth,
+                "title": result.Doc.title,
+                "hash": result.Doc.hash,
+                "links": list(result.Doc.links)  # Convert repeated field to list
+            },
+            "score": result.Score,
+            "term_count": result.TermCount
+        }
+        results.append(result_dict)
+    
+    return {"results": results, "total": len(response.results)}
     
 if __name__ == "__main__":
     channel = grpc.insecure_channel("localhost:50051")
     stub = search_pb2_grpc.SearchStub(channel)
-    response = stub.SearchQuery(search_pb2.SearchRequest(query="hello"))
-    print(len(response.results))
-    # uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

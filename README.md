@@ -27,12 +27,12 @@
 
 - [x] Make a simple gRPC ping-pong communication between the query-api and indexer, just to see how gRPC works
 - [x] Draft the new search .proto 
-- [ ] gRPC between QueryApi -> Indexer
-- [ ] Add pagination to the query-api
+- [x] gRPC between QueryApi -> Indexer
+- [x] Add pagination to the query-api & indexer
 - [ ] Add a simple search results page, that uses pagination
-- [ ] Concurrency in query-api?
-- [ ] Concurrency in crawler
+- [ ] Concurrency in query-api
 - [ ] Concurrency in indexer
+
 
 **Milestone:** All services speak gRPC and we have a working frontend demo
 ---

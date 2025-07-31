@@ -1,16 +1,13 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"net"
-	"net/http"
 	"os"
 
-	"github.com/dxmv/google_clone/pb"
-	"google.golang.org/grpc"
+	"flag"
+
+	badger "github.com/dgraph-io/badger/v4"
 )
 
 type DocMetadata struct {
@@ -24,6 +21,13 @@ type DocMetadata struct {
 const PAGES_DIR = "../crawler/pages"
 const METADATA_DIR = "../crawler/metadata"
 
+var (
+	reindex = flag.Bool("reindex", false, "Rebuild the index before serving")
+)
+
+// Global inverted index structure
+var postings map[string][]Posting
+
 // Check for errors and exit if they occur
 func error_check(err error) {
 	if err != nil {
@@ -31,21 +35,13 @@ func error_check(err error) {
 	}
 }
 
-// Global inverted index structure
-var postings map[string][]Posting
-
-func main1() {
+func makeIndex(db *badger.DB) {
 	// Initialize the postings map
 	postings = make(map[string][]Posting)
 
 	// Read the metadata directory
 	files, err := os.ReadDir(METADATA_DIR)
 	error_check(err)
-
-	// Open the Badger database
-	db, err := openDB()
-	error_check(err)
-	defer db.Close()
 
 	// Index each file
 	for _, file := range files {
@@ -81,51 +77,16 @@ func main1() {
 	} else {
 		fmt.Println("Saved postings...")
 	}
-
-	http.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query().Get("q")
-		results := search(query, db)
-		json.NewEncoder(w).Encode(results)
-		fmt.Println("Results: ", results)
-	})
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-type searchServer struct {
-	pb.UnimplementedSearchServer
-}
-
-func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
-	db, err := openDB()
-	error_check(err)
-	defer db.Close()
-
-	results := search(req.Query, db)
-	finalResults := make([]*pb.SearchResult, len(results))
-	for i, result := range results {
-		finalResults[i] = &pb.SearchResult{
-			Doc: &pb.DocMetadata{
-				Url:   result.DocMetadata.URL,
-				Depth: int32(result.DocMetadata.Depth),
-				Title: result.DocMetadata.Title,
-				Hash:  result.DocMetadata.Hash,
-				Links: result.DocMetadata.Links,
-			},
-			Score:     result.Score,
-			TermCount: int32(result.CountTerm),
-		}
-	}
-	return &pb.SearchResponse{Results: finalResults}, nil
 }
 
 func main() {
-	lis, err := net.Listen("tcp", ":50051")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+	flag.Parse()
+
+	db, err := openDB()
+	error_check(err)
+	defer db.Close()
+	if *reindex {
+		makeIndex(db)
 	}
-	fmt.Println("Server is running on port 50051")
-	grpcServer := grpc.NewServer()
-	pb.RegisterSearchServer(grpcServer, &searchServer{})
-	grpcServer.Serve(lis)
+	startServer(db)
 }
