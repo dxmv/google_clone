@@ -29,7 +29,7 @@
 - [x] Draft the new search .proto 
 - [x] gRPC between QueryApi -> Indexer
 - [x] Add pagination to the query-api & indexer
-- [ ] Add a simple search results page, that uses pagination
+- [x] Add a simple search results page, that uses pagination
 - [ ] Concurrency in query-api
 - [ ] Concurrency in indexer
 

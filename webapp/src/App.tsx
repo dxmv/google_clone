@@ -1,13 +1,14 @@
 import { useState } from "react"
+import { useNavigate } from "react-router"
 
 // Define the form data type
 type FormData = {
   query: string;
 }
 
-const API_URL = import.meta.env.VITE_QUERY_API_URL || 'https://localhost:8000'
 
 function App() {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState<FormData>({
     query: '',
   });
@@ -20,21 +21,7 @@ function App() {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const res = await fetch(`${API_URL}/api/search`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-      body: JSON.stringify({ ...formData }),
-    });
-
-    if (!res.ok) {
-      alert('Error: ' + res.statusText)
-      return
-    }
-
-    const data = await res.json()
-    console.log(data)
+    navigate(`/q?query=${formData.query}&page=1&count=24`)
   }
 
   return (
