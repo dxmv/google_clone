@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -30,7 +31,8 @@ func fetch(url string) ([]byte, error) {
 
 func handleHref(href string) (string, error) {
 	if strings.HasPrefix(href, "#") {
-		return "", fmt.Errorf("href " + href + " is a fragment")
+		msg := fmt.Sprintf("href %s is a fragment", href)
+		return "", errors.New(msg)
 	}
 	res := ""
 	if strings.HasPrefix(href, "/") {

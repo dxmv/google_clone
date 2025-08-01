@@ -30,7 +30,6 @@
 - [x] gRPC between QueryApi -> Indexer
 - [x] Add pagination to the query-api & indexer
 - [x] Add a simple search results page, that uses pagination
-- [ ] Concurrency in query-api
 - [ ] Concurrency in indexer
 
 
@@ -43,9 +42,7 @@
    - [ ] BM25 + field boosts.
    - [ ] gRPC: `RankDocuments(req{query_terms, candidate_ids}) → ranked_ids`.
 2. **Indexer changes**
-   - [ ] Return top‑*N* candidates quickly and call Ranker for final ordering.
-3. **Evaluation harness**
-   - [ ] YAML gold‑set; compute NDCG / MAP in CI; fail on regressions.
+   - [ ] Make the indexer call ranker
 
 **Milestone:** Side‑by‑side relevance improvement with metrics.
 ---
@@ -53,11 +50,12 @@
 ## Phase 4 – **Scale the crawl**
 
 1. **Crawler V2**
+   - [ ] Make it concurent
    - [ ] Make the delay better
    - [ ] Extract meta description too
    - [ ] Work with the whole world wide web
+   - [ ] Store the metadata and html somewhere else, like redis
    - [ ] Extract the imagelinks and backlinks
-   - [ ] Store the metadata and html somewhere else
 2. **Incremental indexing**
    - [ ] Write new segments; background merge.
    - [ ] TTL old pages and re‑crawl on expiry.
