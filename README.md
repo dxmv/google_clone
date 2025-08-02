@@ -30,7 +30,7 @@
 - [x] gRPC between QueryApi -> Indexer
 - [x] Add pagination to the query-api & indexer
 - [x] Add a simple search results page, that uses pagination
-- [ ] Concurrency in indexer
+- [x] Concurrency in indexer
 
 
 **Milestone:** All services speak gRPC and we have a working frontend demo
