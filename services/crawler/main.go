@@ -10,9 +10,10 @@ import (
 
 var START_LINKS = []string{
 	"https://en.wikipedia.org/wiki/Philosophy",
+	"https://en.wikipedia.org/wiki/Mathematics",
 }
 
-const MAX_DEPTH = 2
+const MAX_DEPTH = 1
 
 type Job struct {
 	URL   string
@@ -20,11 +21,12 @@ type Job struct {
 }
 
 type DocMetadata struct {
-	URL   string
-	Depth int
-	Title string
-	Hash  string
-	Links []string
+	URL           string
+	Depth         int
+	Title         string
+	Hash          string
+	Links         []string
+	ContentLength int
 }
 
 type Visited struct {
@@ -49,10 +51,12 @@ func processJob(job Job, jobs chan Job, skippedJobs *SkippedJobs, visited *Visit
 	visited.mu.Unlock()
 
 	docMetadata := DocMetadata{
-		URL:   job.URL,
-		Depth: job.Depth,
-		Title: "",
-		Hash:  "",
+		URL:           job.URL,
+		Depth:         job.Depth,
+		Title:         "",
+		Hash:          "",
+		ContentLength: 0,
+		Links:         []string{},
 	}
 	// get the html
 	body, err := fetch(job.URL)
@@ -64,6 +68,7 @@ func processJob(job Job, jobs chan Job, skippedJobs *SkippedJobs, visited *Visit
 	// extract the links from the html
 	links := extractLinks(body, &docMetadata)
 	docMetadata.Links = links
+	docMetadata.ContentLength = len(body)
 	// add new jobs to the queue
 	for _, link := range links {
 		newJob := Job{URL: link, Depth: job.Depth + 1}
@@ -71,6 +76,14 @@ func processJob(job Job, jobs chan Job, skippedJobs *SkippedJobs, visited *Visit
 		if newJob.Depth > MAX_DEPTH {
 			continue
 		}
+		// skip if already visited
+		visited.mu.Lock()
+		if visited.visited[newJob.URL] {
+			visited.mu.Unlock()
+			continue
+		}
+		visited.mu.Unlock()
+
 		select {
 		case jobs <- newJob:
 			wg.Add(1)
