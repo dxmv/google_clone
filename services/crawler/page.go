@@ -53,7 +53,7 @@ func extractLinks(body []byte, docMetadata *DocMetadata) []string {
 				if attr.Key == "href" {
 					href, err := handleHref(attr.Val)
 					if err != nil {
-						fmt.Println("Error handling href", attr.Val, err)
+						// fmt.Println("Error handling href", attr.Val, err)
 						break
 					}
 					if href == "" {
@@ -64,7 +64,7 @@ func extractLinks(body []byte, docMetadata *DocMetadata) []string {
 			}
 		}
 		// handle title
-		if n.Type == html.ElementNode && n.Data == "title" {
+		if n.Type == html.ElementNode && n.Data == "title" && n.FirstChild != nil {
 			fmt.Println("Title", n.FirstChild.Data)
 			docMetadata.Title = n.FirstChild.Data
 		}

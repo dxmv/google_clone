@@ -30,21 +30,17 @@
 - [x] gRPC between QueryApi -> Indexer
 - [x] Add pagination to the query-api & indexer
 - [x] Add a simple search results page, that uses pagination
-- [x] Concurrency in indexer
 
 
 **Milestone:** All services speak gRPC and we have a working frontend demo
 ---
 
 ## Phase 3 – **Rank smarter**
+   - [x] Concurrency in indexer
+   - [ ] Concurrency in crawler
+   - [ ] BM25 in go
 
-1. **Ranking service (C++)**
-   - [ ] BM25 + field boosts.
-   - [ ] gRPC: `RankDocuments(req{query_terms, candidate_ids}) → ranked_ids`.
-2. **Indexer changes**
-   - [ ] Make the indexer call ranker
-
-**Milestone:** Side‑by‑side relevance improvement with metrics.
+**Milestone:** Have a working demo that use BM25 & crawl all 'Math' wikipedia under 2 mins
 ---
 
 ## Phase 4 – **Scale the crawl**
@@ -57,6 +53,7 @@
    - [ ] Store the metadata and html somewhere else, like redis
    - [ ] Extract the imagelinks and backlinks
 2. **Incremental indexing**
+   - [ ] Optimize indexer
    - [ ] Write new segments; background merge.
    - [ ] TTL old pages and re‑crawl on expiry.
 
