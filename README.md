@@ -38,6 +38,8 @@
 ## Phase 3 – **Rank smarter**
    - [x] Concurrency in indexer
    - [x] Concurrency in crawler
+   - [x] Modify crawler to get the content length for each document
+   - [x] Modify the indexer, to use k=1.2 b=0.75, and to calculate avg document length at the start
    - [ ] BM25 in indexer, at least for now
 
 **Milestone:** Have a working demo that use BM25 & crawl all 'Math' wikipedia under 2 mins

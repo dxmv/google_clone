@@ -12,17 +12,10 @@ import (
 	badger "github.com/dgraph-io/badger/v4"
 )
 
-type DocMetadata struct {
-	URL   string
-	Depth int
-	Title string
-	Hash  string
-	Links []string
-}
-
 const PAGES_DIR = "../crawler/pages"
 const METADATA_DIR = "../crawler/metadata"
 
+// flags
 var (
 	reindex = flag.Bool("reindex", false, "Rebuild the index before serving")
 )
@@ -34,9 +27,23 @@ func error_check(err error) {
 	}
 }
 
+type DocMetadata struct {
+	URL           string
+	Depth         int
+	Title         string
+	Hash          string
+	Links         []string
+	ContentLength int
+}
+
 type WorkerResult struct {
 	Metadata DocMetadata
 	Postings map[string][]Posting
+}
+
+type Stats struct {
+	AvgDocLength float64
+	TotalDocs    int
 }
 
 func worker(id int, jobs <-chan string, results chan<- WorkerResult, wg *sync.WaitGroup) {
@@ -93,11 +100,20 @@ func makeIndex(db *badger.DB) {
 	// merge the metadata into a single slice
 	postings := make(map[string][]Posting)
 	metadata := make([]DocMetadata, 0)
+	stats := Stats{
+		AvgDocLength: 0,
+		TotalDocs:    0,
+	}
 	for r := range results {
 		for term, posting := range r.Postings {
 			postings[term] = append(postings[term], posting...)
 		}
 		metadata = append(metadata, r.Metadata)
+		stats.TotalDocs++
+		stats.AvgDocLength += float64(r.Metadata.ContentLength)
+	}
+	if stats.TotalDocs > 0 {
+		stats.AvgDocLength /= float64(stats.TotalDocs)
 	}
 	// save the postings to the database, term by term
 	log.Println("Saving postings...")
@@ -117,6 +133,13 @@ func makeIndex(db *badger.DB) {
 		error_check(err)
 	}
 	log.Println("Saving metadata complete")
+
+	// save the stats to the database
+	log.Println("Saving stats...")
+	err = saveStats(db, stats)
+	error_check(err)
+	log.Println("Saving stats complete")
+
 	log.Println("Indexing complete")
 }
 

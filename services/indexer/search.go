@@ -14,6 +14,10 @@ type SearchResult struct {
 	CountTerm   int         `json:"countTerm"`
 }
 
+// BM25 parameters
+var K = 1.2
+var B = 0.75
+
 // search performs search query and returns top k results
 // Fetches postings, scores documents, and ranks by relevance
 func search(query string, db *badger.DB) []SearchResult {

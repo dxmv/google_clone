@@ -15,11 +15,12 @@ const PORT = ":50051"
 
 type searchServer struct {
 	pb.UnimplementedSearchServer
-	db *badger.DB
+	db           *badger.DB
+	avgDocLength float64
 }
 
-func NewSearchServer(db *badger.DB) *searchServer {
-	return &searchServer{db: db}
+func NewSearchServer(db *badger.DB, avgDocLength float64) *searchServer {
+	return &searchServer{db: db, avgDocLength: avgDocLength}
 }
 
 func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
@@ -63,6 +64,8 @@ func startServer(db *badger.DB) {
 	}
 	fmt.Println("Server is running on port", PORT)
 	grpcServer := grpc.NewServer()
-	pb.RegisterSearchServer(grpcServer, NewSearchServer(db))
+	avgDocLength := getStats(db).AvgDocLength
+	fmt.Println("Avg doc length:", avgDocLength)
+	pb.RegisterSearchServer(grpcServer, NewSearchServer(db, avgDocLength))
 	grpcServer.Serve(lis)
 }

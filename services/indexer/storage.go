@@ -98,3 +98,29 @@ func getMetadata(db *badger.DB, docID []byte) DocMetadata {
 	})
 	return meta
 }
+
+func saveStats(db *badger.DB, stats Stats) error {
+	err := db.Update(func(txn *badger.Txn) error {
+		statsBytes, err := json.Marshal(stats)
+		if err != nil {
+			return err
+		}
+		return txn.Set([]byte("stats"), statsBytes)
+	})
+	return err
+}
+
+func getStats(db *badger.DB) Stats {
+	stats := Stats{}
+	db.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte("stats"))
+		if err != nil {
+			return err
+		}
+		err = item.Value(func(val []byte) error {
+			return json.Unmarshal(val, &stats)
+		})
+		return err
+	})
+	return stats
+}
