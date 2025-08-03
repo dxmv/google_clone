@@ -37,8 +37,8 @@
 
 ## Phase 3 – **Rank smarter**
    - [x] Concurrency in indexer
-   - [ ] Concurrency in crawler
-   - [ ] BM25 in go
+   - [x] Concurrency in crawler
+   - [ ] BM25 in indexer, at least for now
 
 **Milestone:** Have a working demo that use BM25 & crawl all 'Math' wikipedia under 2 mins
 ---

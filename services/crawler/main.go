@@ -12,7 +12,7 @@ var START_LINKS = []string{
 	"https://en.wikipedia.org/wiki/Philosophy",
 }
 
-const MAX_DEPTH = 1
+const MAX_DEPTH = 2
 
 type Job struct {
 	URL   string
@@ -48,10 +48,6 @@ func processJob(job Job, jobs chan Job, skippedJobs *SkippedJobs, visited *Visit
 	visited.visited[job.URL] = true
 	visited.mu.Unlock()
 
-	// check if depth is too high
-	if job.Depth > MAX_DEPTH {
-		return
-	}
 	docMetadata := DocMetadata{
 		URL:   job.URL,
 		Depth: job.Depth,
@@ -71,6 +67,10 @@ func processJob(job Job, jobs chan Job, skippedJobs *SkippedJobs, visited *Visit
 	// add new jobs to the queue
 	for _, link := range links {
 		newJob := Job{URL: link, Depth: job.Depth + 1}
+		// check if depth is too high
+		if newJob.Depth > MAX_DEPTH {
+			continue
+		}
 		select {
 		case jobs <- newJob:
 			wg.Add(1)
@@ -116,7 +116,7 @@ func main() {
 	}
 
 	// create jobs channel
-	jobs := make(chan Job, 100)
+	jobs := make(chan Job, 1000)
 	skippedJobs := SkippedJobs{
 		skipped: make([]Job, 0),
 		mu:      sync.Mutex{},
