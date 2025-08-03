@@ -12,7 +12,7 @@ var START_LINKS = []string{
 	"https://en.wikipedia.org/wiki/Philosophy",
 }
 
-const MAX_DEPTH = 2
+const MAX_DEPTH = 1
 
 type Job struct {
 	URL   string
@@ -26,55 +26,6 @@ type DocMetadata struct {
 	Hash  string
 	Links []string
 }
-
-// type Visited struct {
-// 	Jobs map[string]bool
-// 	mu   sync.Mutex
-// }
-
-// func worker(id int, jobs chan Job, wg *sync.WaitGroup) {
-// 	for job := range jobs {
-// 		log.Println("Worker", id, "processing job", job.URL, "depth", job.Depth)
-
-// 		docMetadata := DocMetadata{
-// 			URL:   job.URL,
-// 			Depth: job.Depth,
-// 			Title: "",
-// 			Hash:  "",
-// 		}
-// 		// get the html
-// 		body, err := fetch(job.URL)
-// 		if err != nil {
-// 			fmt.Println("Error getting HTML from", job.URL, err)
-// 			continue
-// 		}
-
-// 		// extract the links from the html
-// 		links := extractLinks(body, &docMetadata)
-// 		docMetadata.Links = links
-// 		for _, link := range links {
-// 			jobs <- Job{URL: link, Depth: job.Depth + 1}
-// 		}
-
-// 		// save the html
-// 		hash := sha256.Sum256(body)
-// 		err = saveHTML(hex.EncodeToString(hash[:]), body)
-// 		if err != nil {
-// 			fmt.Println("Error saving HTML", err)
-// 		}
-
-// 		// save metadata
-// 		docMetadata.Hash = hex.EncodeToString(hash[:])
-// 		err = saveMetadata(docMetadata)
-// 		if err != nil {
-// 			fmt.Println("Error saving metadata", err)
-// 		}
-
-// 		fmt.Println("Visited", job.URL)
-// 		fmt.Println("\n--------------------------------\n\n")
-// 		wg.Done()
-// 	}
-// }
 
 type Visited struct {
 	mu      sync.Mutex
@@ -122,6 +73,7 @@ func processJob(job Job, jobs chan Job, skippedJobs *SkippedJobs, visited *Visit
 		newJob := Job{URL: link, Depth: job.Depth + 1}
 		select {
 		case jobs <- newJob:
+			wg.Add(1)
 		default:
 			skippedJobs.mu.Lock()
 			skippedJobs.skipped = append(skippedJobs.skipped, newJob)
