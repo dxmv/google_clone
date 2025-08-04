@@ -45,38 +45,37 @@
 **Milestone:** Have a working demo that use BM25 & crawl all 'Math' wikipedia under 2 mins
 ---
 
-## Phase 4 – **Scale the crawl**
+## Phase 4 – **Scale the crawl & index**
 
 1. **Crawler V2**
+   - [ ] Abstract the storage mechanism, so we can just plug in something else if we want
    - [ ] Extract meta description too
-   - [ ] Store the metadata and html somewhere else, like redis
-   - [ ] Extract the imagelinks and backlinks
-   - [ ] Figure out what kind of search engine we want, and crawl those pages
+   - [ ] Store the metadata and html somewhere else
+   - [ ] Figure out what kind of search engine we want, and crawl those pages, like if we want a stocks serach engine or something more specific
    - [ ] Make the delay better
-2. **Incremental indexing**
-   - [ ] Make the indexer use that new storage method
-   - [ ] The indexer should store it's results in mongodb database
-   - [ ] Optimize indexer + search
-   - [ ] Write new segments; background merge.
-   - [ ] TTL old pages and re‑crawl on expiry.
+   - [ ] TTL old pages and re‑crawl on expiry
+2. **Indexer V2**
+   - [ ] Make the indexer use that new storage method when indexing, if changed
+   - [ ] Write new segments; background merge
+3. **Search service**
+   - [ ] Seperate the search stuff into a seperate go service
+   - [ ] Make search concurrent
+   - [ ] Create a LRU for search
+   - [ ] Use gRPC for communication between query-api
 
-**Milestone:** Live dashboard of URLs/sec and zero‑downtime index updates.
+
+**Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate
 
 ---
 
 ## Phase 5 – **User experience polish**
 
 1. **Full results page**
-
-   - [ ] Snippet highlighting, favicons, domain breadcrumbs.
-2. **Spell‑correction**
-
-   - [ ] SymSpell / edit‑distance over query logs.
-3. **Autocomplete**
-
+   - [ ] Make a new figma design, and implement it
+   - [ ] Snippet highlighting, favicons, domain breadcrumbs
+2. **Autocomplete**
    - [ ] Top query n‑grams in a Redis trie (<5 ms).
-4. **Analytics dashboard**
-
+3. **Analytics dashboard**
    - [ ] Grafana/Loki: top queries, zero‑result rate, latency histograms.
 
 **Milestone:** Search feels “Google‑ish”; real usage graphs live.
