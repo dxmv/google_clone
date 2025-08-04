@@ -15,16 +15,17 @@ const PORT = ":50051"
 
 type searchServer struct {
 	pb.UnimplementedSearchServer
-	db           *badger.DB
-	avgDocLength float64
+	db             *badger.DB
+	avgDocLength   float64
+	collectionSize int64
 }
 
-func NewSearchServer(db *badger.DB, avgDocLength float64) *searchServer {
-	return &searchServer{db: db, avgDocLength: avgDocLength}
+func NewSearchServer(db *badger.DB, avgDocLength float64, collectionSize int64) *searchServer {
+	return &searchServer{db: db, avgDocLength: avgDocLength, collectionSize: collectionSize}
 }
 
 func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
-	results := search(req.Query, s.db)
+	results := search(req.Query, s.db, s.avgDocLength, s.collectionSize)
 	finalResults := make([]*pb.SearchResult, len(results))
 	for i, result := range results {
 		finalResults[i] = &pb.SearchResult{
@@ -53,6 +54,8 @@ func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (
 		finalResults = finalResults[offset : offset+req.Count]
 	}
 
+	fmt.Println("Final results: ", finalResults)
+
 	return &pb.SearchResponse{Results: finalResults}, nil
 }
 
@@ -65,7 +68,8 @@ func startServer(db *badger.DB) {
 	fmt.Println("Server is running on port", PORT)
 	grpcServer := grpc.NewServer()
 	avgDocLength := getStats(db).AvgDocLength
+	collectionSize := int64(getStats(db).TotalDocs)
 	fmt.Println("Avg doc length:", avgDocLength)
-	pb.RegisterSearchServer(grpcServer, NewSearchServer(db, avgDocLength))
+	pb.RegisterSearchServer(grpcServer, NewSearchServer(db, avgDocLength, collectionSize))
 	grpcServer.Serve(lis)
 }

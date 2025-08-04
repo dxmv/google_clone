@@ -40,7 +40,7 @@
    - [x] Concurrency in crawler
    - [x] Modify crawler to get the content length for each document
    - [x] Modify the indexer, to use k=1.2 b=0.75, and to calculate avg document length at the start
-   - [ ] BM25 in indexer, at least for now
+   - [x] BM25 in indexer, at least for now
 
 **Milestone:** Have a working demo that use BM25 & crawl all 'Math' wikipedia under 2 mins
 ---
@@ -48,14 +48,15 @@
 ## Phase 4 – **Scale the crawl**
 
 1. **Crawler V2**
-   - [ ] Make it concurent
-   - [ ] Make the delay better
    - [ ] Extract meta description too
-   - [ ] Work with the whole world wide web
    - [ ] Store the metadata and html somewhere else, like redis
    - [ ] Extract the imagelinks and backlinks
+   - [ ] Figure out what kind of search engine we want, and crawl those pages
+   - [ ] Make the delay better
 2. **Incremental indexing**
-   - [ ] Optimize indexer
+   - [ ] Make the indexer use that new storage method
+   - [ ] The indexer should store it's results in mongodb database
+   - [ ] Optimize indexer + search
    - [ ] Write new segments; background merge.
    - [ ] TTL old pages and re‑crawl on expiry.
 
