@@ -39,7 +39,7 @@ type SkippedJobs struct {
 	skipped []Job
 }
 
-func processJob(job Job, jobs chan Job, skippedJobs *SkippedJobs, visited *Visited, wg *sync.WaitGroup) {
+func processJob(job Job, jobs chan Job, skippedJobs *SkippedJobs, visited *Visited, wg *sync.WaitGroup, storage Storage) {
 	// check if already visited
 	visited.mu.Lock()
 	if visited.visited[job.URL] {
@@ -93,34 +93,36 @@ func processJob(job Job, jobs chan Job, skippedJobs *SkippedJobs, visited *Visit
 			skippedJobs.mu.Unlock()
 		}
 	}
+	hash := sha256.Sum256(body)
+	hashString := hex.EncodeToString(hash[:])
 
 	// save the html
-	hash := sha256.Sum256(body)
-	err = saveHTML(hex.EncodeToString(hash[:]), body)
+	err = storage.SaveHTML(hashString, body)
 	if err != nil {
 		fmt.Println("Error saving HTML", err)
 	}
 
 	// save metadata
-	docMetadata.Hash = hex.EncodeToString(hash[:])
-	err = saveMetadata(docMetadata)
+	docMetadata.Hash = hashString
+	err = storage.SaveMetadata(docMetadata)
 	if err != nil {
 		fmt.Println("Error saving metadata", err)
 	}
 
 }
 
-func worker(id int, jobs chan Job, skippedJobs *SkippedJobs, visited *Visited, wg *sync.WaitGroup) {
+func worker(id int, jobs chan Job, skippedJobs *SkippedJobs, visited *Visited, wg *sync.WaitGroup, storage Storage) {
 	for job := range jobs {
 		fmt.Println("Worker", id, "processing job", job.URL, "depth", job.Depth)
-		processJob(job, jobs, skippedJobs, visited, wg)
+		processJob(job, jobs, skippedJobs, visited, wg, storage)
 		wg.Done()
 	}
 }
 
 func main() {
-	createDirectory(PAGES_DIR)
-	createDirectory(METADATA_DIR)
+	storage := Storage(NewLocalStorage())
+	storage.CreateDirectory(PAGES_DIR)
+	storage.CreateDirectory(METADATA_DIR)
 
 	// create visited map
 	visited := Visited{
@@ -138,7 +140,7 @@ func main() {
 
 	// start workers
 	for i := 0; i < runtime.NumCPU(); i++ {
-		go worker(i, jobs, &skippedJobs, &visited, &wg)
+		go worker(i, jobs, &skippedJobs, &visited, &wg, storage)
 	}
 
 	// seed jobs

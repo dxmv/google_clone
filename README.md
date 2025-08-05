@@ -1,11 +1,21 @@
 # Google‑Clone Project Roadmap
 
-## Phase 0 – Baseline (✅ completed)
+## Phase 0 – **Baseline**
+1. **Simple frontend**
+   - [x] Just a simple react page with an input
 
-- [x] Go indexer (in‑memory postings)
-- [x] Python query API that calls Go search
-- [x] React mini‑frontend hitting the Python API
+2. **Query api**
+   - [x] Create a fast-api app
+   - [x] Expose search endpoint
+   - [x] Call the endpoint on frontend
 
+3. **Indexer**
+   - [x] Find a corpus
+   - [x] Index, only in memory for now
+   - [x] Use badgerDB to store the index stuff
+   - [x] Query-api calls the search endpoint
+
+**Milestone:** Basic search
 ---
 
 
@@ -48,15 +58,14 @@
 ## Phase 4 – **Scale the crawl & index**
 
 1. **Crawler V2**
-   - [ ] Abstract the storage mechanism, so we can just plug in something else if we want
+   - [x] Abstract the storage mechanism, so we can just plug in something else if we want
+   - [ ] Clean up the code a bit
    - [ ] Extract meta description too
    - [ ] Store the metadata and html somewhere else
-   - [ ] Figure out what kind of search engine we want, and crawl those pages, like if we want a stocks serach engine or something more specific
-   - [ ] Make the delay better
-   - [ ] TTL old pages and re‑crawl on expiry
 2. **Indexer V2**
    - [ ] Make the indexer use that new storage method when indexing, if changed
-   - [ ] Write new segments; background merge
+   - [ ] Write new segments
+   - [ ] Background merge
 3. **Search service**
    - [ ] Seperate the search stuff into a seperate go service
    - [ ] Make search concurrent
@@ -70,9 +79,9 @@
 
 ## Phase 5 – **User experience polish**
 
-1. **Full results page**
-   - [ ] Make a new figma design, and implement it
-   - [ ] Snippet highlighting, favicons, domain breadcrumbs
+1. **Better UI**
+   - [ ] Make a new figma design 
+   - [ ] Implement the full design
 2. **Autocomplete**
    - [ ] Top query n‑grams in a Redis trie (<5 ms).
 3. **Analytics dashboard**
@@ -82,15 +91,20 @@
 
 ---
 
-## Phase 6 – **Verticals & advanced toys**
+## Phase 6 – **Specific crawling & improvements**
 
-1. **News tab**
-   - [ ] RSS fetcher → extractor/indexer; tag docs `type=news`.
-   - [ ] Freshness boost in Ranker.
-2. **Images tab**
-   - [ ] Download `<img>` sources; compute pHash; index via LSH.
+1. **Crawler V3**
+   - [ ] Figure out what kind of search engine we want, and crawl those pages, like if we want a stocks serach engine or something more specific
+   - [ ] Make the delay better
+   - [ ] TTL old pages and re‑crawl on expiry
 
-**Milestone:** Instant tab switching; image similarity search demo.
+2. **News tab**
+   - [ ] Crawler tags the pages in metadata with 'news' tag
+
+3. **Images tab**
+   - [ ] Crawler fetches the images
+
+**Milestone:** Image and news tab when searching, and now usefull
 
 ---
 
@@ -99,5 +113,12 @@
 - [ ] Docker‑compose → Kubernetes (kind/k3s).
 - [ ] Prometheus + Alertmanager (latency, error budget, disk).
 - [ ] Chaos testing: kill a Ranker pod; verify graceful degradation.
+
+---
+
+## Phase 8 - **Final phase**
+
+- [ ] Figure out how to host everything
+- [ ] Write a README.md for everything
 
 
