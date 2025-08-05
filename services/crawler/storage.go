@@ -17,13 +17,10 @@ type LocalStorage struct {
 	metadataDir string
 }
 
-const PAGES_DIR = "pages1"
-const METADATA_DIR = "metadata1"
-
-func NewLocalStorage() *LocalStorage {
+func NewLocalStorage(pagesDir string, metadataDir string) *LocalStorage {
 	return &LocalStorage{
-		pagesDir:    PAGES_DIR,
-		metadataDir: METADATA_DIR,
+		pagesDir:    pagesDir,
+		metadataDir: metadataDir,
 	}
 }
 
@@ -40,12 +37,12 @@ func (s *LocalStorage) CreateDirectory(name string) error {
 }
 
 func (s *LocalStorage) SaveHTML(hash string, body []byte) error {
-	path := PAGES_DIR + "/" + hash + ".html"
+	path := s.pagesDir + "/" + hash + ".html"
 	return os.WriteFile(path, body, 0644)
 }
 
 func (s *LocalStorage) SaveMetadata(docMetadata DocMetadata) error {
-	path := METADATA_DIR + "/" + docMetadata.Hash + ".json"
+	path := s.metadataDir + "/" + docMetadata.Hash + ".json"
 	json, err := json.Marshal(docMetadata)
 	if err != nil {
 		return err

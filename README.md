@@ -59,11 +59,13 @@
 
 1. **Crawler V2**
    - [x] Abstract the storage mechanism, so we can just plug in something else if we want
-   - [ ] Clean up the code a bit
-   - [ ] Extract meta description too
-   - [ ] Store the metadata and html somewhere else
+   - [x] Clean up the code a bit
+   - [ ] Extract meta description and save craweled time also
+   - [ ] Store the html in minIO
+   - [ ] Store doc metadata in mongodb
 2. **Indexer V2**
-   - [ ] Make the indexer use that new storage method when indexing, if changed
+   - [ ] Abstract the reading files and saving postings
+   - [ ] Make the indexer use that new storage method when indexing
    - [ ] Write new segments
    - [ ] Background merge
 3. **Search service**
