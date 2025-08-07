@@ -1,9 +1,13 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
+	"log"
 	"os"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Storage interface {
@@ -12,19 +16,34 @@ type Storage interface {
 	CreateDirectory(name string) error
 }
 
-type LocalStorage struct {
-	pagesDir    string
-	metadataDir string
+// minio and mongodb storage
+type MinioMongoStorage struct {
+	mongoConnection *mongo.Client
+	pagesDir        string
+	metadataDir     string
 }
 
-func NewLocalStorage(pagesDir string, metadataDir string) *LocalStorage {
-	return &LocalStorage{
-		pagesDir:    pagesDir,
-		metadataDir: metadataDir,
+func newMongoConnection(uri string, ctx context.Context) (*mongo.Client, error) {
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	if err != nil {
+		return nil, err
+	}
+	return client, nil
+}
+
+func NewMinioMongoStorage(mongoUri string, ctx context.Context) *MinioMongoStorage {
+	mongoConnection, err := newMongoConnection(mongoUri, ctx)
+	if err != nil {
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
+	return &MinioMongoStorage{
+		mongoConnection: mongoConnection,
+		pagesDir:        "pages",
+		metadataDir:     "metadata",
 	}
 }
 
-func (s *LocalStorage) CreateDirectory(name string) error {
+func (s *MinioMongoStorage) CreateDirectory(name string) error {
 	// check if the directory exists
 	if _, err := os.Stat(name); os.IsNotExist(err) {
 		err := os.Mkdir(name, 0755)
@@ -36,16 +55,16 @@ func (s *LocalStorage) CreateDirectory(name string) error {
 	return nil
 }
 
-func (s *LocalStorage) SaveHTML(hash string, body []byte) error {
+func (s *MinioMongoStorage) SaveHTML(hash string, body []byte) error {
 	path := s.pagesDir + "/" + hash + ".html"
 	return os.WriteFile(path, body, 0644)
 }
 
-func (s *LocalStorage) SaveMetadata(docMetadata DocMetadata) error {
-	path := s.metadataDir + "/" + docMetadata.Hash + ".json"
-	json, err := json.Marshal(docMetadata)
+func (s *MinioMongoStorage) SaveMetadata(docMetadata DocMetadata) error {
+	coll := s.mongoConnection.Database("crawler").Collection("metadata")
+	_, err := coll.InsertOne(context.Background(), docMetadata)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, json, 0644)
+	return nil
 }

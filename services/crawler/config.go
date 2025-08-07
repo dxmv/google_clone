@@ -1,6 +1,9 @@
 package main
 
-import "runtime"
+import (
+	"os"
+	"runtime"
+)
 
 const PAGES_DIR = "pages"
 const METADATA_DIR = "metadata"
@@ -13,9 +16,12 @@ type Config struct {
 	NumWorkers  int
 	PagesDir    string
 	MetadataDir string
+	MongoUri    string
 }
 
 func NewConfig() *Config {
+	fmt.Println(os.Getenv("MONGO_CONNECTION")
+	monogUri := os.Getenv("MONGO_CONNECTION")
 	return &Config{
 		StartLinks: []string{
 			"https://en.wikipedia.org/wiki/Philosophy",
@@ -27,5 +33,6 @@ func NewConfig() *Config {
 		NumWorkers:  runtime.NumCPU(),
 		PagesDir:    PAGES_DIR,
 		MetadataDir: METADATA_DIR,
+		MongoUri:    monogUri,
 	}
 }
