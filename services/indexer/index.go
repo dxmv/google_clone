@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -28,14 +27,10 @@ func addToIndex(docID []byte, termFreq map[string]int, postings map[string][]Pos
 }
 
 // Index an html file using the modular functions
-func index_file(filePath string, id []byte, postings map[string][]Posting) {
-	fmt.Println("Indexing: ", filePath)
-	content, err := os.ReadFile(filePath)
-	error_check(err)
+func index_file(htmlString string, id []byte, postings map[string][]Posting) {
 
 	// Parse HTML content
-	html_string := string(content)
-	doc, err := html.Parse(strings.NewReader(html_string))
+	doc, err := html.Parse(strings.NewReader(htmlString))
 	error_check(err)
 
 	// Extract text from HTML
@@ -49,5 +44,4 @@ func index_file(filePath string, id []byte, postings map[string][]Posting) {
 	addToIndex(id, termFreq, postings)
 	fmt.Println("Added to index...")
 
-	return
 }

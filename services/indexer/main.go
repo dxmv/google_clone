@@ -2,21 +2,14 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
-	"os"
-	"path/filepath"
 	"runtime"
 	"sync"
 	"time"
 
 	badger "github.com/dgraph-io/badger/v4"
 )
-
-const PAGES_DIR = "../crawler/pages"
-const METADATA_DIR = "../crawler/metadata"
 
 // flags
 var (
@@ -50,46 +43,42 @@ type Stats struct {
 	TotalDocs    int
 }
 
-func worker(id int, jobs <-chan string, results chan<- WorkerResult, wg *sync.WaitGroup) {
+func worker(id int, jobs <-chan DocMetadata, results chan<- WorkerResult, wg *sync.WaitGroup, corpus Corpus) {
 	defer wg.Done()
 	for j := range jobs {
-		log.Println("worker", id, "processing job", j)
+		log.Println("worker", id, "processing job", j.Title)
 		postings := make(map[string][]Posting)
 		// read the metadata file
-		metadataFile, err := os.ReadFile(j)
-		error_check(err)
-		// unmarshal the metadata file
-		var metadata DocMetadata
-		err = json.Unmarshal(metadataFile, &metadata)
-		error_check(err)
+		metadata := j
 		// index the html file
-		htmlFilePath := filepath.Join(PAGES_DIR, metadata.Hash+".html")
-		index_file(htmlFilePath, []byte(metadata.Hash), postings)
+		html, err := corpus.GetHTML(context.Background(), metadata.Hash+".html")
+		error_check(err)
+		index_file(string(html), []byte(metadata.Hash), postings)
 		results <- WorkerResult{Metadata: metadata, Postings: postings}
 	}
 }
 
-func makeIndex(db *badger.DB) {
+func makeIndex(db *badger.DB, corpus Corpus) {
 	log.Println("Indexing...")
 	// read the metadata directory
-	files, err := os.ReadDir(METADATA_DIR)
+	docs, err := corpus.ListMetadata(context.Background())
 	error_check(err)
 
 	// create the jobs and results channels
-	jobs := make(chan string, 100)
+	jobs := make(chan DocMetadata, 100)
 	results := make(chan WorkerResult, 100)
 	wg := sync.WaitGroup{}
 
 	// start the workers with the number of CPUs
 	for i := 0; i < runtime.NumCPU(); i++ {
 		wg.Add(1)
-		go worker(i, jobs, results, &wg)
+		go worker(i, jobs, results, &wg, corpus)
 	}
 
 	// enqueue the jobs from the metadata directory
 	go func() {
-		for _, file := range files {
-			jobs <- filepath.Join(METADATA_DIR, file.Name())
+		for _, doc := range docs {
+			jobs <- doc
 		}
 		close(jobs)
 	}()
@@ -120,7 +109,7 @@ func makeIndex(db *badger.DB) {
 		stats.AvgDocLength /= float64(stats.TotalDocs)
 	}
 	// save the postings to the database, term by term
-	log.Println("Saving postings...")
+	log.Println("Saving postings...", len(postings))
 	for term, posting := range postings {
 		log.Println("Saving postings for", term)
 		err = savePostings(db, map[string][]Posting{term: posting})
@@ -129,7 +118,7 @@ func makeIndex(db *badger.DB) {
 	log.Println("Saving postings complete")
 
 	// save the metadata to the database
-	log.Println("Saving metadata...")
+	log.Println("Saving metadata...", len(metadata))
 	for _, m := range metadata {
 		// save the metadata to the database
 		log.Println("Saving metadata for", m.Title, "with hash", m.Hash)
@@ -149,17 +138,13 @@ func makeIndex(db *badger.DB) {
 
 func main() {
 	flag.Parse()
-
-	// db, err := openDB()
-	// error_check(err)
-	// defer db.Close()
-	// if *reindex {
-	// 	makeIndex(db)
-	// }
-	// startServer(db)
 	corpus := Corpus(NewMinoMongoCorpus())
-	// docs, err := corpus.ListMetadata(context.Background())
-	html, err := corpus.GetHTML(context.Background(), "001d9e94f85a09e9286b079529bdc66c5b721ca8b805c8260339a60b2eee9550.html")
+
+	db, err := openDB()
 	error_check(err)
-	fmt.Println(string(html))
+	defer db.Close()
+	if *reindex {
+		makeIndex(db, corpus)
+	}
+	startServer(db)
 }

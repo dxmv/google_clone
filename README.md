@@ -65,7 +65,7 @@
    - [x] Store doc metadata in mongodb
 2. **Indexer V2**
    - [x] Abstract the reading files
-   - [ ] Make the indexer use that new storage method when indexing
+   - [x] Make the indexer use that new storage method when indexing
    - [ ] Write new segments
    - [ ] Background merge
 3. **Search service**

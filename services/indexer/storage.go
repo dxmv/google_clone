@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 
 	badger "github.com/dgraph-io/badger/v4"
 )
@@ -71,6 +72,7 @@ func getPostings(db *badger.DB, term string) []Posting {
 	db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(term))
 		if err != nil {
+			log.Println("Error getting postings: ", err)
 			return err
 		}
 
