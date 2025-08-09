@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"sync"
+	"time"
 )
 
 type Job struct {
@@ -19,6 +20,7 @@ type DocMetadata struct {
 	Hash          string
 	Links         []string
 	ContentLength int
+	CrawledAt     time.Time
 }
 
 /*
@@ -121,6 +123,7 @@ func (c *Crawler) processJob(job Job) {
 	links := extractLinks(body, &docMetadata)
 	docMetadata.Links = links
 	docMetadata.ContentLength = len(body)
+	docMetadata.CrawledAt = time.Now()
 	// add new jobs to the queue
 	for _, link := range links {
 		newJob := Job{URL: link, Depth: job.Depth + 1}
