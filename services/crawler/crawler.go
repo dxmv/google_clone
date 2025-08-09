@@ -54,8 +54,8 @@ func NewCrawler(storage Storage, config *Config) *Crawler {
 
 // Start starts the crawler
 func (c *Crawler) Start() error {
-	c.storage.CreateDirectory(c.config.PagesDir)
-	c.storage.CreateDirectory(c.config.MetadataDir)
+	c.storage.CreateHTMLDirectory(c.config.PagesDir)
+	c.storage.CreateMetadataDirectory(c.config.MetadataDir)
 
 	// Start workers
 	for i := 0; i < c.config.NumWorkers; i++ {

@@ -1,63 +1,74 @@
 package main
 
 import (
+	"bytes"
 	"context"
-	"fmt"
 	"log"
-	"os"
 
+	"github.com/minio/minio-go/v7"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Storage interface {
 	SaveHTML(hash string, body []byte) error
 	SaveMetadata(docMetadata DocMetadata) error
-	CreateDirectory(name string) error
+	CreateMetadataDirectory(name string) error
+	CreateHTMLDirectory(name string) error
 }
 
 // minio and mongodb storage
 type MinioMongoStorage struct {
 	mongoConnection *mongo.Client
-	pagesDir        string
-	metadataDir     string
+	minioClient     *minio.Client
 }
 
-func newMongoConnection(uri string, ctx context.Context) (*mongo.Client, error) {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
-}
-
-func NewMinioMongoStorage(mongoUri string, ctx context.Context) *MinioMongoStorage {
+func NewMinioMongoStorage(mongoUri string, minioClient *minio.Client, ctx context.Context) *MinioMongoStorage {
 	mongoConnection, err := newMongoConnection(mongoUri, ctx)
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
 	return &MinioMongoStorage{
 		mongoConnection: mongoConnection,
-		pagesDir:        "pages",
-		metadataDir:     "metadata",
+		minioClient:     minioClient,
 	}
 }
 
-func (s *MinioMongoStorage) CreateDirectory(name string) error {
-	// check if the directory exists
-	if _, err := os.Stat(name); os.IsNotExist(err) {
-		err := os.Mkdir(name, 0755)
+func (s *MinioMongoStorage) CreateMetadataDirectory(name string) error {
+	// create a collection in mongodb
+	coll := s.mongoConnection.Database("crawler").Collection(name)
+	_, err := coll.InsertOne(context.Background(), bson.M{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// ensure that the bucket exists
+func (s *MinioMongoStorage) CreateHTMLDirectory(name string) error {
+	exists, err := s.minioClient.BucketExists(context.Background(), name)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		err = s.minioClient.MakeBucket(context.Background(), name, minio.MakeBucketOptions{})
 		if err != nil {
 			return err
 		}
 	}
-	fmt.Println("Directory", name, "already exists")
 	return nil
 }
 
 func (s *MinioMongoStorage) SaveHTML(hash string, body []byte) error {
-	path := s.pagesDir + "/" + hash + ".html"
-	return os.WriteFile(path, body, 0644)
+	objectName := hash + ".html"
+	contentType := "text/html"
+
+	// upload the html to minio
+	_, err := s.minioClient.PutObject(context.Background(), PAGES_DIR, objectName, bytes.NewReader(body), int64(len(body)), minio.PutObjectOptions{ContentType: contentType})
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return nil
 }
 
 func (s *MinioMongoStorage) SaveMetadata(docMetadata DocMetadata) error {

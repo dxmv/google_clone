@@ -7,7 +7,7 @@ import (
 
 func main() {
 	config := NewConfig()
-	storage := NewMinioMongoStorage(config.MongoUri, context.Background())
+	storage := NewMinioMongoStorage(config.MongoUri, config.MinioClient, context.Background())
 	crawler := NewCrawler(storage, config)
 	err := crawler.Start()
 	if err != nil {
