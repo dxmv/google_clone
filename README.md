@@ -60,11 +60,11 @@
 1. **Crawler V2**
    - [x] Abstract the storage mechanism, so we can just plug in something else if we want
    - [x] Clean up the code a bit
-   - [ ] Extract meta description and save craweled time also
-   - [ ] Store the html in minIO
+   - [x] Save crawled time also
+   - [x] Store the html in minIO
    - [x] Store doc metadata in mongodb
 2. **Indexer V2**
-   - [ ] Abstract the reading files and saving postings
+   - [x] Abstract the reading files
    - [ ] Make the indexer use that new storage method when indexing
    - [ ] Write new segments
    - [ ] Background merge
@@ -75,7 +75,7 @@
    - [ ] Use gRPC for communication between query-api
 
 
-**Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate
+**Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate directly
 
 ---
 

@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
 	"sync"
+	"time"
 
 	badger "github.com/dgraph-io/badger/v4"
 )
@@ -34,6 +37,7 @@ type DocMetadata struct {
 	Hash          string
 	Links         []string
 	ContentLength int
+	CrawledAt     time.Time
 }
 
 type WorkerResult struct {
@@ -146,11 +150,16 @@ func makeIndex(db *badger.DB) {
 func main() {
 	flag.Parse()
 
-	db, err := openDB()
+	// db, err := openDB()
+	// error_check(err)
+	// defer db.Close()
+	// if *reindex {
+	// 	makeIndex(db)
+	// }
+	// startServer(db)
+	corpus := Corpus(NewMinoMongoCorpus())
+	// docs, err := corpus.ListMetadata(context.Background())
+	html, err := corpus.GetHTML(context.Background(), "001d9e94f85a09e9286b079529bdc66c5b721ca8b805c8260339a60b2eee9550.html")
 	error_check(err)
-	defer db.Close()
-	if *reindex {
-		makeIndex(db)
-	}
-	startServer(db)
+	fmt.Println(string(html))
 }
