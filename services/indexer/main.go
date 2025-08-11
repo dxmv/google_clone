@@ -7,8 +7,6 @@ import (
 	"runtime"
 	"sync"
 	"time"
-
-	badger "github.com/dgraph-io/badger/v4"
 )
 
 // flags
@@ -58,10 +56,10 @@ func worker(id int, jobs <-chan DocMetadata, results chan<- WorkerResult, wg *sy
 	}
 }
 
-func makeIndex(db *badger.DB, corpus Corpus) {
+func makeIndex(storage *Storage) {
 	log.Println("Indexing...")
 	// read the metadata directory
-	docs, err := corpus.ListMetadata(context.Background())
+	docs, err := storage.listMetadata()
 	error_check(err)
 
 	// create the jobs and results channels
@@ -72,7 +70,7 @@ func makeIndex(db *badger.DB, corpus Corpus) {
 	// start the workers with the number of CPUs
 	for i := 0; i < runtime.NumCPU(); i++ {
 		wg.Add(1)
-		go worker(i, jobs, results, &wg, corpus)
+		go worker(i, jobs, results, &wg, storage.corpus)
 	}
 
 	// enqueue the jobs from the metadata directory
@@ -112,24 +110,14 @@ func makeIndex(db *badger.DB, corpus Corpus) {
 	log.Println("Saving postings...", len(postings))
 	for term, posting := range postings {
 		log.Println("Saving postings for", term)
-		err = savePostings(db, map[string][]Posting{term: posting})
+		err = storage.savePostings(map[string][]Posting{term: posting})
 		error_check(err)
 	}
 	log.Println("Saving postings complete")
 
-	// save the metadata to the database
-	log.Println("Saving metadata...", len(metadata))
-	for _, m := range metadata {
-		// save the metadata to the database
-		log.Println("Saving metadata for", m.Title, "with hash", m.Hash)
-		err = saveMetadata(db, []byte(m.Hash), m)
-		error_check(err)
-	}
-	log.Println("Saving metadata complete")
-
 	// save the stats to the database
 	log.Println("Saving stats...")
-	err = saveStats(db, stats)
+	err = storage.saveStats(stats)
 	error_check(err)
 	log.Println("Saving stats complete")
 
@@ -140,11 +128,10 @@ func main() {
 	flag.Parse()
 	corpus := Corpus(NewMinoMongoCorpus())
 
-	db, err := openDB()
-	error_check(err)
-	defer db.Close()
+	storage := NewStorage(corpus)
+	defer storage.db.Close()
 	if *reindex {
-		makeIndex(db, corpus)
+		makeIndex(storage)
 	}
-	startServer(db)
+	startServer(storage)
 }

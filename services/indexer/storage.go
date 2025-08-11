@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 
@@ -8,6 +9,12 @@ import (
 )
 
 const DB_PATH = "./tmp/badger"
+
+// storage is a wrapper around the badger db and the corpus
+type Storage struct {
+	db     *badger.DB
+	corpus Corpus
+}
 
 // openDB initializes and retqurns a database connection
 func openDB() (*badger.DB, error) {
@@ -18,12 +25,22 @@ func openDB() (*badger.DB, error) {
 	db, err := badger.Open(opts)
 
 	return db, err
+}
 
+func NewStorage(corpus Corpus) *Storage {
+	db, err := openDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &Storage{
+		db:     db,
+		corpus: corpus,
+	}
 }
 
 // savePosting saves a posting to the database
-func savePostings(db *badger.DB, postings map[string][]Posting) error {
-	err := db.Update(func(txn *badger.Txn) error {
+func (s *Storage) savePostings(postings map[string][]Posting) error {
+	err := s.db.Update(func(txn *badger.Txn) error {
 		for term, postings := range postings {
 			postingsBytes, err := json.Marshal(postings)
 			if err != nil {
@@ -39,8 +56,8 @@ func savePostings(db *badger.DB, postings map[string][]Posting) error {
 	return err
 }
 
-func savePosting(db *badger.DB, term []byte, posting Posting) error {
-	err := db.Update(func(txn *badger.Txn) error {
+func (s *Storage) savePosting(term []byte, posting Posting) error {
+	err := s.db.Update(func(txn *badger.Txn) error {
 		postingBytes, err := json.Marshal(posting)
 		if err != nil {
 			return err
@@ -55,21 +72,21 @@ func savePosting(db *badger.DB, term []byte, posting Posting) error {
 }
 
 // saveMetadata saves document metadata to the database
-func saveMetadata(db *badger.DB, docID []byte, docMeta DocMetadata) error {
-	err := db.Update(func(txn *badger.Txn) error {
-		docMetaBytes, err := json.Marshal(docMeta)
-		if err != nil {
-			return err
-		}
-		err = txn.Set(docID, docMetaBytes)
-		return err
-	})
-	return err
+func (s *Storage) getMetadata(docID string) (DocMetadata, error) {
+	return s.corpus.GetMetadata(context.Background(), docID)
 }
 
-func getPostings(db *badger.DB, term string) []Posting {
+func (s *Storage) listMetadata() ([]DocMetadata, error) {
+	return s.corpus.ListMetadata(context.Background())
+}
+
+func (s *Storage) getHTML(docID string) ([]byte, error) {
+	return s.corpus.GetHTML(context.Background(), docID)
+}
+
+func (s *Storage) getPostings(term string) []Posting {
 	postings := []Posting{}
-	db.View(func(txn *badger.Txn) error {
+	s.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(term))
 		if err != nil {
 			log.Println("Error getting postings: ", err)
@@ -86,23 +103,8 @@ func getPostings(db *badger.DB, term string) []Posting {
 	return postings
 }
 
-func getMetadata(db *badger.DB, docID []byte) DocMetadata {
-	meta := DocMetadata{}
-	db.View(func(txn *badger.Txn) error {
-		item, err := txn.Get(docID)
-		if err != nil {
-			return err
-		}
-		err = item.Value(func(val []byte) error {
-			return json.Unmarshal(val, &meta)
-		})
-		return err
-	})
-	return meta
-}
-
-func saveStats(db *badger.DB, stats Stats) error {
-	err := db.Update(func(txn *badger.Txn) error {
+func (s *Storage) saveStats(stats Stats) error {
+	err := s.db.Update(func(txn *badger.Txn) error {
 		statsBytes, err := json.Marshal(stats)
 		if err != nil {
 			return err
@@ -112,9 +114,9 @@ func saveStats(db *badger.DB, stats Stats) error {
 	return err
 }
 
-func getStats(db *badger.DB) Stats {
+func (s *Storage) getStats() Stats {
 	stats := Stats{}
-	db.View(func(txn *badger.Txn) error {
+	s.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte("stats"))
 		if err != nil {
 			return err

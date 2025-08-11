@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"sort"
-
-	badger "github.com/dgraph-io/badger/v4"
 )
 
 // SearchResult represents a search result with score
@@ -21,7 +20,7 @@ var B = 0.75
 
 // search performs search query and returns top k results
 // Fetches postings, scores documents, and ranks by relevance
-func search(query string, db *badger.DB, avgDocLength float64, collectionSize int64) []SearchResult {
+func search(query string, storage *Storage, avgDocLength float64, collectionSize int64) []SearchResult {
 	// parse and tokenize query
 	queryTerms := tokenise(query) // will be a map of term to frequency
 
@@ -30,13 +29,17 @@ func search(query string, db *badger.DB, avgDocLength float64, collectionSize in
 	// for each term, fetch postings
 	docMap := make(map[string]SearchResult)
 	for term, _ := range queryTerms {
-		posting := getPostings(db, term)
+		posting := storage.getPostings(term)
 		numberOfDocumentsWithTerm := len(posting)
 		idf := calculateIDF(numberOfDocumentsWithTerm, collectionSize)
 		for _, posting := range posting {
 			docID := string(posting.DocID)
 			// get the metadata for the document
-			metadata := getMetadata(db, posting.DocID)
+			metadata, err := storage.getMetadata(docID)
+			if err != nil {
+				log.Println("Error getting metadata: ", err)
+				continue
+			}
 			// Use the BM25 formula to calculate the score
 			top, bottom := calculateTopBottom(posting, metadata, avgDocLength)
 			score := idf * (top / bottom)

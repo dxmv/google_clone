@@ -66,13 +66,15 @@
 2. **Indexer V2**
    - [x] Abstract the reading files
    - [x] Make the indexer use that new storage method when indexing
+   - [x] Put the corpus type inside of db, and don't save metadata in badger anymore, use mongo's metadata
    - [ ] Write new segments
    - [ ] Background merge
 3. **Search service**
    - [ ] Seperate the search stuff into a seperate go service
+   - [ ] Use gRPC for communication between query-api
    - [ ] Make search concurrent
    - [ ] Create a LRU for search
-   - [ ] Use gRPC for communication between query-api
+   - [ ] Figure out how to make the search even faster
 
 
 **Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate directly

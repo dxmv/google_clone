@@ -16,6 +16,7 @@ import (
 type Corpus interface {
 	GetHTML(ctx context.Context, hash string) ([]byte, error)
 	ListMetadata(ctx context.Context) ([]DocMetadata, error)
+	GetMetadata(ctx context.Context, docID string) (DocMetadata, error)
 }
 
 type MinoMongoCorpus struct {
@@ -100,4 +101,16 @@ func (c *MinoMongoCorpus) ListMetadata(ctx context.Context) ([]DocMetadata, erro
 		return nil, err
 	}
 	return docs, nil
+}
+
+// return a single metadata doc
+func (c *MinoMongoCorpus) GetMetadata(ctx context.Context, docID string) (DocMetadata, error) {
+	coll := c.mongoClient.Database(c.databaseName).Collection(c.collectionName)
+	var doc DocMetadata
+	log.Println("docID", docID)
+	err := coll.FindOne(ctx, bson.D{{"hash", docID}}).Decode(&doc) // TODO: check if this is correct
+	if err != nil {
+		return DocMetadata{}, err
+	}
+	return doc, nil
 }

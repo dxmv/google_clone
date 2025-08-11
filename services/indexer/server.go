@@ -6,7 +6,6 @@ import (
 	"log"
 	"net"
 
-	badger "github.com/dgraph-io/badger/v4"
 	pb "github.com/dxmv/google_clone/pb"
 	"google.golang.org/grpc"
 )
@@ -15,17 +14,17 @@ const PORT = ":50051"
 
 type searchServer struct {
 	pb.UnimplementedSearchServer
-	db             *badger.DB
+	storage        *Storage
 	avgDocLength   float64
 	collectionSize int64
 }
 
-func NewSearchServer(db *badger.DB, avgDocLength float64, collectionSize int64) *searchServer {
-	return &searchServer{db: db, avgDocLength: avgDocLength, collectionSize: collectionSize}
+func NewSearchServer(storage *Storage, avgDocLength float64, collectionSize int64) *searchServer {
+	return &searchServer{storage: storage, avgDocLength: avgDocLength, collectionSize: collectionSize}
 }
 
 func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
-	results := search(req.Query, s.db, s.avgDocLength, s.collectionSize)
+	results := search(req.Query, s.storage, s.avgDocLength, s.collectionSize)
 	finalResults := make([]*pb.SearchResult, len(results))
 	for i, result := range results {
 		finalResults[i] = &pb.SearchResult{
@@ -59,7 +58,7 @@ func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (
 	return &pb.SearchResponse{Results: finalResults}, nil
 }
 
-func startServer(db *badger.DB) {
+func startServer(storage *Storage) {
 
 	lis, err := net.Listen("tcp", PORT)
 	if err != nil {
@@ -67,9 +66,9 @@ func startServer(db *badger.DB) {
 	}
 	fmt.Println("Server is running on port", PORT)
 	grpcServer := grpc.NewServer()
-	avgDocLength := getStats(db).AvgDocLength
-	collectionSize := int64(getStats(db).TotalDocs)
+	avgDocLength := storage.getStats().AvgDocLength
+	collectionSize := int64(storage.getStats().TotalDocs)
 	fmt.Println("Avg doc length:", avgDocLength)
-	pb.RegisterSearchServer(grpcServer, NewSearchServer(db, avgDocLength, collectionSize))
+	pb.RegisterSearchServer(grpcServer, NewSearchServer(storage, avgDocLength, collectionSize))
 	grpcServer.Serve(lis)
 }
