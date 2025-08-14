@@ -1,5 +1,28 @@
 # Google‑Clone Project Roadmap
 
+This repository is a from-scratch mini search engine designed to mirror the core ideas behind a web search stack while staying small enough to understand. It has a Go crawler and indexer, a Go-based ranking pipeline (BM25), a Python FastAPI query layer, and a React front-end. Storage is split by concern: HTML in object storage (MinIO/S3), document metadata in MongoDB, and an inverted index in BadgerDB (for fast local lookups). Everything speaks gRPC under the hood (or is moving there).
+
+### Why this exists
+ - Practice real IR: tokenization, postings, tf-idf/BM25, snippets, pagination.
+ - Systems thinking: concurrency in Go, backpressure, batching, caches.
+ - Cloud-ish storage: object storage for the corpus, DB for metadata, KV for the index.
+ - Pragmatism: ship an MVP first; make it faster and more robust later.
+
+### What it does (today)
+ - Crawls a bounded slice of Wikipedia (seeded to Math/Philosophy), storing raw HTML in MinIO and metadata in MongoDB.
+ - Builds an inverted index in BadgerDB, computes collection stats (doc count, average doc length), and serves BM25 queries with k=1.2, b=0.75.
+ - Exposes a simple FastAPI endpoint the React UI calls to show paginated results.
+
+### Tech choices (and why)
+ - Go for crawler/indexer: easy concurrency, strong stdlib, fast binaries.
+ - BadgerDB for the index: blazing fast local KV; perfect for a single-writer, single-box MVP.
+ - MinIO/S3 for raw HTML: cheap, durable, scalable; decouples storage from compute.
+ - MongoDB for metadata: flexible schema; easy querying.
+ - FastAPI: quick to ship a clean API the frontend can hit.
+ - gRPC: stable, language-agnostic contracts between services.
+
+
+---
 ## Phase 0 – **Baseline**
 1. **Simple frontend**
    - [x] Just a simple react page with an input
