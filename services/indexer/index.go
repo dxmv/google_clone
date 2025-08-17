@@ -4,30 +4,25 @@ import (
 	"fmt"
 	"strings"
 
+	shared "github.com/dxmv/google_clone/shared"
 	"golang.org/x/net/html"
 )
 
-// Posting represents a document's relevance for a term
-type Posting struct {
-	DocID []byte
-	Count int
-}
-
 // addToIndex merges a document's term frequency map into the global inverted index
-func addToIndex(docID []byte, termFreq map[string]int, postings map[string][]Posting) {
+func addToIndex(docID []byte, termFreq map[string]int, postings map[string][]shared.Posting) {
 	for term, count := range termFreq {
 		_, ok := postings[term]
 		if ok {
-			postings[term] = append(postings[term], Posting{DocID: docID, Count: count})
+			postings[term] = append(postings[term], shared.Posting{DocID: docID, Count: count})
 		} else {
-			posting := Posting{DocID: docID, Count: count}
-			postings[term] = []Posting{posting}
+			posting := shared.Posting{DocID: docID, Count: count}
+			postings[term] = []shared.Posting{posting}
 		}
 	}
 }
 
 // Index an html file using the modular functions
-func index_file(htmlString string, id []byte, postings map[string][]Posting) {
+func index_file(htmlString string, id []byte, postings map[string][]shared.Posting) {
 
 	// Parse HTML content
 	doc, err := html.Parse(strings.NewReader(htmlString))
@@ -38,7 +33,7 @@ func index_file(htmlString string, id []byte, postings map[string][]Posting) {
 	fmt.Println("Parsed html...\nTokenizing...")
 
 	// Tokenize the text
-	termFreq := tokenise(text)
+	termFreq := shared.Tokenize(text)
 
 	// add it to the index
 	addToIndex(id, termFreq, postings)

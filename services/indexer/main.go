@@ -2,16 +2,11 @@ package main
 
 import (
 	"context"
-	"flag"
 	"log"
 	"runtime"
 	"sync"
-	"time"
-)
 
-// flags
-var (
-	reindex = flag.Bool("reindex", false, "Rebuild the index before serving")
+	shared "github.com/dxmv/google_clone/shared"
 )
 
 // Check for errors and exit if they occur
@@ -21,31 +16,16 @@ func error_check(err error) {
 	}
 }
 
-type DocMetadata struct {
-	URL           string
-	Depth         int
-	Title         string
-	Hash          string
-	Links         []string
-	ContentLength int
-	CrawledAt     time.Time
-}
-
 type WorkerResult struct {
-	Metadata DocMetadata
-	Postings map[string][]Posting
+	Metadata shared.DocMetadata
+	Postings map[string][]shared.Posting
 }
 
-type Stats struct {
-	AvgDocLength float64
-	TotalDocs    int
-}
-
-func worker(id int, jobs <-chan DocMetadata, results chan<- WorkerResult, wg *sync.WaitGroup, corpus Corpus) {
+func worker(id int, jobs <-chan shared.DocMetadata, results chan<- WorkerResult, wg *sync.WaitGroup, corpus shared.Corpus) {
 	defer wg.Done()
 	for j := range jobs {
 		log.Println("worker", id, "processing job", j.Title)
-		postings := make(map[string][]Posting)
+		postings := make(map[string][]shared.Posting)
 		// read the metadata file
 		metadata := j
 		// index the html file
@@ -56,21 +36,21 @@ func worker(id int, jobs <-chan DocMetadata, results chan<- WorkerResult, wg *sy
 	}
 }
 
-func makeIndex(storage *Storage) {
+func makeIndex(storage *shared.Storage) {
 	log.Println("Indexing...")
 	// read the metadata directory
-	docs, err := storage.listMetadata()
+	docs, err := storage.ListMetadata()
 	error_check(err)
 
 	// create the jobs and results channels
-	jobs := make(chan DocMetadata, 100)
+	jobs := make(chan shared.DocMetadata, 100)
 	results := make(chan WorkerResult, 100)
 	wg := sync.WaitGroup{}
 
 	// start the workers with the number of CPUs
 	for i := 0; i < runtime.NumCPU(); i++ {
 		wg.Add(1)
-		go worker(i, jobs, results, &wg, storage.corpus)
+		go worker(i, jobs, results, &wg, storage.Corpus)
 	}
 
 	// enqueue the jobs from the metadata directory
@@ -89,9 +69,9 @@ func makeIndex(storage *Storage) {
 
 	// merge the postings into a single map
 	// merge the metadata into a single slice
-	postings := make(map[string][]Posting)
-	metadata := make([]DocMetadata, 0)
-	stats := Stats{
+	postings := make(map[string][]shared.Posting)
+	metadata := make([]shared.DocMetadata, 0)
+	stats := shared.Stats{
 		AvgDocLength: 0,
 		TotalDocs:    0,
 	}
@@ -110,14 +90,14 @@ func makeIndex(storage *Storage) {
 	log.Println("Saving postings...", len(postings))
 	for term, posting := range postings {
 		log.Println("Saving postings for", term)
-		err = storage.savePostings(map[string][]Posting{term: posting})
+		err = storage.SavePostings(map[string][]shared.Posting{term: posting})
 		error_check(err)
 	}
 	log.Println("Saving postings complete")
 
 	// save the stats to the database
 	log.Println("Saving stats...")
-	err = storage.saveStats(stats)
+	err = storage.SaveStats(stats)
 	error_check(err)
 	log.Println("Saving stats complete")
 
@@ -125,13 +105,9 @@ func makeIndex(storage *Storage) {
 }
 
 func main() {
-	flag.Parse()
-	corpus := Corpus(NewMinoMongoCorpus())
+	corpus := shared.Corpus(shared.NewMinoMongoCorpus())
 
-	storage := NewStorage(corpus)
-	defer storage.db.Close()
-	if *reindex {
-		makeIndex(storage)
-	}
-	startServer(storage)
+	storage := shared.NewStorage(corpus)
+	defer storage.DB.Close()
+	makeIndex(storage)
 }

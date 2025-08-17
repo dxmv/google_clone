@@ -7,6 +7,7 @@ import (
 	"net"
 
 	pb "github.com/dxmv/google_clone/pb"
+	shared "github.com/dxmv/google_clone/shared"
 	"google.golang.org/grpc"
 )
 
@@ -14,12 +15,12 @@ const PORT = ":50051"
 
 type searchServer struct {
 	pb.UnimplementedSearchServer
-	storage        *Storage
+	storage        *shared.Storage
 	avgDocLength   float64
 	collectionSize int64
 }
 
-func NewSearchServer(storage *Storage, avgDocLength float64, collectionSize int64) *searchServer {
+func NewSearchServer(storage *shared.Storage, avgDocLength float64, collectionSize int64) *searchServer {
 	return &searchServer{storage: storage, avgDocLength: avgDocLength, collectionSize: collectionSize}
 }
 
@@ -58,7 +59,7 @@ func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (
 	return &pb.SearchResponse{Results: finalResults}, nil
 }
 
-func startServer(storage *Storage) {
+func startServer(storage *shared.Storage) {
 
 	lis, err := net.Listen("tcp", PORT)
 	if err != nil {
@@ -66,9 +67,12 @@ func startServer(storage *Storage) {
 	}
 	fmt.Println("Server is running on port", PORT)
 	grpcServer := grpc.NewServer()
-	avgDocLength := storage.getStats().AvgDocLength
-	collectionSize := int64(storage.getStats().TotalDocs)
-	fmt.Println("Avg doc length:", avgDocLength)
-	pb.RegisterSearchServer(grpcServer, NewSearchServer(storage, avgDocLength, collectionSize))
+	stats, err := storage.GetStats()
+	if err != nil {
+		log.Fatalf("failed to get stats: %v", err)
+	}
+	collectionSize := int64(stats.TotalDocs)
+	fmt.Println("Avg doc length:", stats.AvgDocLength)
+	pb.RegisterSearchServer(grpcServer, NewSearchServer(storage, stats.AvgDocLength, collectionSize))
 	grpcServer.Serve(lis)
 }

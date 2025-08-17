@@ -27,14 +27,14 @@ func NewStorage(corpus Corpus) *Storage {
 		log.Fatal(err)
 	}
 	return &Storage{
-		db:     db,
-		corpus: corpus,
+		DB:     db,
+		Corpus: corpus,
 	}
 }
 
 // savePosting saves a posting to the database
-func (s *Storage) savePostings(postings map[string][]Posting) error {
-	err := s.db.Update(func(txn *badger.Txn) error {
+func (s *Storage) SavePostings(postings map[string][]Posting) error {
+	err := s.DB.Update(func(txn *badger.Txn) error {
 		for term, postings := range postings {
 			postingsBytes, err := json.Marshal(postings)
 			if err != nil {
@@ -50,8 +50,8 @@ func (s *Storage) savePostings(postings map[string][]Posting) error {
 	return err
 }
 
-func (s *Storage) savePosting(term []byte, posting Posting) error {
-	err := s.db.Update(func(txn *badger.Txn) error {
+func (s *Storage) SavePosting(term []byte, posting Posting) error {
+	err := s.DB.Update(func(txn *badger.Txn) error {
 		postingBytes, err := json.Marshal(posting)
 		if err != nil {
 			return err
@@ -67,20 +67,20 @@ func (s *Storage) savePosting(term []byte, posting Posting) error {
 
 // saveMetadata saves document metadata to the database
 func (s *Storage) GetMetadata(docID string) (DocMetadata, error) {
-	return s.corpus.GetMetadata(context.Background(), docID)
+	return s.Corpus.GetMetadata(context.Background(), docID)
 }
 
 func (s *Storage) ListMetadata() ([]DocMetadata, error) {
-	return s.corpus.ListMetadata(context.Background())
+	return s.Corpus.ListMetadata(context.Background())
 }
 
 func (s *Storage) GetHTML(docID string) ([]byte, error) {
-	return s.corpus.GetHTML(context.Background(), docID)
+	return s.Corpus.GetHTML(context.Background(), docID)
 }
 
 func (s *Storage) GetPostings(term string) []Posting {
 	postings := []Posting{}
-	s.db.View(func(txn *badger.Txn) error {
+	s.DB.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(term))
 		if err != nil {
 			log.Println("Error getting postings: ", err)
@@ -98,7 +98,7 @@ func (s *Storage) GetPostings(term string) []Posting {
 }
 
 func (s *Storage) SaveStats(stats Stats) error {
-	err := s.db.Update(func(txn *badger.Txn) error {
+	err := s.DB.Update(func(txn *badger.Txn) error {
 		statsBytes, err := json.Marshal(stats)
 		if err != nil {
 			return err
@@ -110,7 +110,7 @@ func (s *Storage) SaveStats(stats Stats) error {
 
 func (s *Storage) GetStats() (Stats, error) {
 	stats := Stats{}
-	s.db.View(func(txn *badger.Txn) error {
+	s.DB.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte("stats"))
 		if err != nil {
 			return err

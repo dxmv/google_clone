@@ -48,6 +48,6 @@ type MinoMongoCorpus struct {
 
 // storage is a wrapper around the badger db and the corpus
 type Storage struct {
-	db     *badger.DB
-	corpus Corpus
+	DB     *badger.DB
+	Corpus Corpus
 }
