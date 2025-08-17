@@ -93,7 +93,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [ ] Write new segments
    - [ ] Background merge
 3. **Search service**
-   - [ ] Seperate the search stuff into a seperate go service
+   - [x] Seperate the search stuff into a seperate go service
    - [ ] Use gRPC for communication between query-api
    - [ ] Make search concurrent
    - [ ] Create a LRU for search

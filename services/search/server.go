@@ -6,7 +6,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/dxmv/google_clone/pb"
+	pb "github.com/dxmv/google_clone/search/pb"
 	shared "github.com/dxmv/google_clone/shared"
 	"google.golang.org/grpc"
 )

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package search;
-option go_package = "google-clone/services/indexer/pb;pb";        
+option go_package = "google-clone/services/search/pb;pb";        
 
 service Search {
         rpc SearchQuery (SearchRequest) returns (SearchResponse);
