@@ -96,7 +96,10 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Seperate the search stuff into a seperate go service
    - [x] Use gRPC for communication between query-api
    - [x] Make search concurrent
-   - [ ] Figure out how to make the search even faster
+   - [x] Figure out how to make the search even faster
+      - [x] Save doc length for each file in badger db
+      - [x] Use that database instead of mongo for search
+      - [x] Only fetch from mongodb in the end of search (to get paginated results) 
    - [ ] Create a LRU for search
 
 

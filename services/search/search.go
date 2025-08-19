@@ -12,9 +12,9 @@ import (
 
 // SearchResult represents a search result with score
 type SearchResult struct {
-	DocMetadata shared.DocMetadata `json:"docMeta"`
-	Score       float64            `json:"score"`
-	CountTerm   int                `json:"countTerm"`
+	Hash      string  `json:"hash"`
+	Score     float64 `json:"score"`
+	CountTerm int     `json:"countTerm"`
 }
 
 // BM25 parameters
@@ -33,18 +33,18 @@ func worker(id int, jobs <-chan Job, results chan<- SearchResult, wg *sync.WaitG
 		idf := job.IDF
 		docID := string(posting.DocID)
 		// get the metadata for the document
-		metadata, err := storage.GetMetadata(docID)
+		docLength, err := storage.GetDocLength(docID)
 		if err != nil {
 			log.Println("Error getting metadata: ", err)
 			continue
 		}
 		// Use the BM25 formula to calculate the score
-		top, bottom := calculateTopBottom(posting, metadata, avgDocLength)
+		top, bottom := calculateTopBottom(posting, docLength, avgDocLength)
 		score := idf * (top / bottom)
 		results <- SearchResult{
-			DocMetadata: metadata,
-			Score:       score,
-			CountTerm:   1,
+			Hash:      docID,
+			Score:     score,
+			CountTerm: 1,
 		}
 	}
 }
@@ -83,21 +83,21 @@ func search(query string, storage *shared.Storage, avgDocLength float64, collect
 
 		// process the results
 		for result := range results {
-			docID := result.DocMetadata.Hash
+			docID := result.Hash
 			_, ok := docMap[docID]
 			// if the document is not in the map, add it
 			if !ok {
 				docMap[docID] = SearchResult{
-					DocMetadata: result.DocMetadata,
-					Score:       result.Score,
-					CountTerm:   1,
+					Hash:      result.Hash,
+					Score:     result.Score,
+					CountTerm: 1,
 				}
 			} else {
 				// if the document is in the map, update the score
 				docMap[docID] = SearchResult{
-					DocMetadata: result.DocMetadata,
-					Score:       docMap[docID].Score + result.Score,
-					CountTerm:   docMap[docID].CountTerm + 1,
+					Hash:      result.Hash,
+					Score:     docMap[docID].Score + result.Score,
+					CountTerm: docMap[docID].CountTerm + 1,
 				}
 			}
 		}
@@ -115,12 +115,12 @@ func search(query string, storage *shared.Storage, avgDocLength float64, collect
 	return results
 }
 
-func calculateTopBottom(posting shared.Posting, metadata shared.DocMetadata, avgDocLength float64) (float64, float64) {
-	docLength := float64(metadata.ContentLength)
+func calculateTopBottom(posting shared.Posting, docLength uint32, avgDocLength float64) (float64, float64) {
 	// the percentage of the term in the document
 	termFrequency := float64(posting.Count)
 	top := termFrequency * (K + 1)
-	bottom := termFrequency + K*(1-B+B*(docLength/avgDocLength))
+	res := float64(docLength) / avgDocLength
+	bottom := termFrequency + K*(1-B+B*res)
 	if bottom == 0 {
 		bottom = 0.5
 	}

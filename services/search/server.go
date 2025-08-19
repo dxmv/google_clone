@@ -26,34 +26,37 @@ func NewSearchServer(storage *shared.Storage, avgDocLength float64, collectionSi
 
 func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
 	results := search(req.Query, s.storage, s.avgDocLength, s.collectionSize)
+
+	// pagination here
+	offset := (req.Page - 1) * req.Count // start index
+	// check if offset is out of bounds
+	if offset >= int32(len(results)) {
+		return &pb.SearchResponse{Results: []*pb.SearchResult{}}, nil
+	}
+	// check if offset + count is out of bounds
+	if offset+req.Count > int32(len(results)) {
+		results = results[offset:]
+	} else {
+		results = results[offset : offset+req.Count]
+	}
 	finalResults := make([]*pb.SearchResult, len(results))
 	for i, result := range results {
+		docMetadata, err := s.storage.GetMetadata(result.Hash)
+		if err != nil {
+			log.Fatalf("failed to get metadata: %v", err)
+		}
 		finalResults[i] = &pb.SearchResult{
 			Doc: &pb.DocMetadata{
-				Url:   result.DocMetadata.URL,
-				Depth: int32(result.DocMetadata.Depth),
-				Title: result.DocMetadata.Title,
-				Hash:  result.DocMetadata.Hash,
-				Links: result.DocMetadata.Links,
+				Url:   docMetadata.URL,
+				Depth: int32(docMetadata.Depth),
+				Title: docMetadata.Title,
+				Hash:  docMetadata.Hash,
+				Links: docMetadata.Links,
 			},
 			Score:     result.Score,
 			TermCount: int32(result.CountTerm),
 		}
 	}
-
-	// pagination here
-	offset := (req.Page - 1) * req.Count // start index
-	// check if offset is out of bounds
-	if offset >= int32(len(finalResults)) {
-		return &pb.SearchResponse{Results: []*pb.SearchResult{}}, nil
-	}
-	// check if offset + count is out of bounds
-	if offset+req.Count > int32(len(finalResults)) {
-		finalResults = finalResults[offset:]
-	} else {
-		finalResults = finalResults[offset : offset+req.Count]
-	}
-
 	fmt.Println("Final results: ", finalResults)
 
 	return &pb.SearchResponse{Results: finalResults}, nil
