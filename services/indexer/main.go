@@ -17,8 +17,9 @@ func error_check(err error) {
 }
 
 type WorkerResult struct {
-	Metadata shared.DocMetadata
-	Postings map[string][]shared.Posting
+	ContentLength uint32
+	Hash          string
+	Postings      map[string][]shared.Posting
 }
 
 func worker(id int, jobs <-chan shared.DocMetadata, results chan<- WorkerResult, wg *sync.WaitGroup, corpus shared.Corpus) {
@@ -32,7 +33,7 @@ func worker(id int, jobs <-chan shared.DocMetadata, results chan<- WorkerResult,
 		html, err := corpus.GetHTML(context.Background(), metadata.Hash+".html")
 		error_check(err)
 		index_file(string(html), []byte(metadata.Hash), postings)
-		results <- WorkerResult{Metadata: metadata, Postings: postings}
+		results <- WorkerResult{ContentLength: uint32(len(html)), Postings: postings, Hash: metadata.Hash}
 	}
 }
 
@@ -68,20 +69,22 @@ func makeIndex(storage *shared.Storage) {
 	}()
 
 	// merge the postings into a single map
-	// merge the metadata into a single slice
 	postings := make(map[string][]shared.Posting)
-	metadata := make([]shared.DocMetadata, 0)
+	docLengths := make(map[string]uint32)
 	stats := shared.Stats{
 		AvgDocLength: 0,
 		TotalDocs:    0,
 	}
 	for r := range results {
+		if r.Hash == "" {
+			continue
+		}
 		for term, posting := range r.Postings {
 			postings[term] = append(postings[term], posting...)
 		}
-		metadata = append(metadata, r.Metadata)
+		docLengths[r.Hash] = r.ContentLength
 		stats.TotalDocs++
-		stats.AvgDocLength += float64(r.Metadata.ContentLength)
+		stats.AvgDocLength += float64(r.ContentLength)
 	}
 	if stats.TotalDocs > 0 {
 		stats.AvgDocLength /= float64(stats.TotalDocs)
@@ -94,6 +97,14 @@ func makeIndex(storage *shared.Storage) {
 		error_check(err)
 	}
 	log.Println("Saving postings complete")
+
+	// save the doc lengths to the database
+	log.Println("Saving doc lengths...")
+	for hash, length := range docLengths {
+		err = storage.SaveDocLength(hash, length)
+		error_check(err)
+	}
+	log.Println("Saving doc lengths complete")
 
 	// save the stats to the database
 	log.Println("Saving stats...")

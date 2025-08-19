@@ -96,11 +96,11 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Seperate the search stuff into a seperate go service
    - [x] Use gRPC for communication between query-api
    - [x] Make search concurrent
-   - [ ] Create a LRU for search
    - [ ] Figure out how to make the search even faster
+   - [ ] Create a LRU for search
 
 
-**Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate directly
+**Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate directly. ~1s for queries with a lot of results like 'logic' or 'math'
 
 ---
 

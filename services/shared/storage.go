@@ -2,6 +2,7 @@ package shared
 
 import (
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"log"
 
@@ -121,4 +122,29 @@ func (s *Storage) GetStats() (Stats, error) {
 		return err
 	})
 	return stats, nil
+}
+
+func (s *Storage) SaveDocLength(docID string, length uint32) error {
+	err := s.DB.Update(func(txn *badger.Txn) error {
+		dst := make([]byte, 4)
+		binary.BigEndian.PutUint32(dst, length)
+		return txn.Set([]byte(docID), dst)
+	})
+	return err
+}
+
+func (s *Storage) GetDocLength(docID string) (uint32, error) {
+	length := 0
+	err := s.DB.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte(docID))
+		if err != nil {
+			return err
+		}
+		err = item.Value(func(val []byte) error {
+			length = int(binary.BigEndian.Uint32(val))
+			return nil
+		})
+		return err
+	})
+	return uint32(length), err
 }
