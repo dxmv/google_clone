@@ -1,5 +1,5 @@
 # 23.08.2025
-- [ ] General LRU
+- [x] General LRU
 - [ ] Generic LRU
 - [ ] Move LRU to shared
 - [ ] Use LRU in search service

@@ -49,6 +49,9 @@ func (lru *LRUCache) String() string {
 }
 
 func (lru *LRUCache) Put(value int) {
+	if lru.Capacity == 0 {
+		return
+	}
 	// if the list is empty, add the value to the head
 	if lru.Head == nil {
 		lru.Head = &ListNode{Value: value}
@@ -113,13 +116,14 @@ func (lru *LRUCache) deleteNode() {
 	}
 	tailNode := lru.Tail
 	delete(lru.Cache, tailNode.Value)
-	if tailNode.Prev != nil {
-		tailNode.Prev.Next = nil
+	prev := tailNode.Prev
+	if prev != nil {
+		prev.Next = nil
 	}
-	tailNode.Prev = nil
-	tailNode.Next = nil
-	lru.Tail = tailNode.Prev
-	if lru.Tail == nil {
+	lru.Tail = prev
+	if lru.Tail == nil { // list became empty
 		lru.Head = nil
 	}
+
+	tailNode.Prev, tailNode.Next = nil, nil
 }
