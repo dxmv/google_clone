@@ -100,7 +100,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
       - [x] Save doc length for each file in badger db
       - [x] Use that database instead of mongo for search
       - [x] Only fetch from mongodb in the end of search (to get paginated results) 
-   - [ ] Create a LRU for search
+   - [ ] Create a LRU for search, where we'll store results for a query
 
 
 **Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate directly. ~1s for queries with a lot of results like 'logic' or 'math'
@@ -150,7 +150,3 @@ This repository is a from-scratch mini search engine designed to mirror the core
 
 - [ ] Figure out how to host everything
 - [ ] Write a README.md for everything
-a`
-
-
-``

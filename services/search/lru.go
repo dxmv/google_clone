@@ -1,120 +1,125 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
-type ListNode[T any] struct {
-	Key   string
-	Value T
-	Prev  *ListNode[T]
-	Next  *ListNode[T]
+type ListNode struct {
+	Value int
+	Prev  *ListNode
+	Next  *ListNode
 }
 
-// head will be the most recently used item
-// tail will be the least recently used item
-type LruCache[T any] struct {
-	head  *ListNode[T]
-	tail  *ListNode[T]
-	size  int
-	cache map[string]*ListNode[T]
+type LRUCache struct {
+	Capacity int
+	Head     *ListNode
+	Tail     *ListNode
+	Cache    map[int]*ListNode
 }
 
-// constructor
-func NewLruCache[T any](size int) *LruCache[T] {
-	return &LruCache[T]{
-		head:  nil,
-		tail:  nil,
-		size:  size,
-		cache: make(map[string]*ListNode[T]),
+func NewLRUCache(capacity int) LRUCache {
+	lru := LRUCache{
+		Capacity: capacity,
+		Head:     nil,
+		Tail:     nil,
+		Cache:    make(map[int]*ListNode),
 	}
+	return lru
 }
 
-// get item from cache
-func (c *LruCache[T]) Get(key string) (T, bool) {
-	return c.head.Value, true
+// to string function
+func (lru *LRUCache) String() string {
+	var sb strings.Builder
+	// go through string and add each value to the result
+	current := lru.Head
+	sb.WriteString("[")
+	for current != nil {
+		var str string
+		if current.Next == nil {
+			str = fmt.Sprintf("%d", current.Value)
+		} else {
+			str = fmt.Sprintf("%d, ", current.Value)
+		}
+		sb.WriteString(str)
+		current = current.Next
+	}
+	sb.WriteString("]")
+	return sb.String()
 }
 
-// put item in cache
-func (c *LruCache[T]) Put(key string, value T) {
-	// get the node from the cache
-	node, ok := c.cache[key]
-	// if the node is not in the cache, add it to the cache
-	if !ok {
-		c.addNodeToHead(key, &ListNode[T]{
-			Key:   key,
-			Value: value,
-		})
-	} else {
-		// if the node is in the cache, move it to the head of the list
-		c.moveNodeToHead(key, node)
+func (lru *LRUCache) Put(value int) {
+	// if the list is empty, add the value to the head
+	if lru.Head == nil {
+		lru.Head = &ListNode{Value: value}
+		lru.Tail = lru.Head
+		lru.Cache[value] = lru.Head
+		return
+	}
+	// if the list is not empty, add the value to the head
+	node, ok := lru.Cache[value]
+	if ok {
+		lru.moveNodeToHead(node)
 		node.Value = value
+		return
+	}
+	newNode := &ListNode{Value: value}
+	newNode.Next = lru.Head
+	lru.Head.Prev = newNode
+	lru.Head = newNode
+	lru.Cache[value] = newNode
+	if len(lru.Cache) > lru.Capacity {
+		lru.deleteNode()
 	}
 }
 
-// move a given node to the head of the list
-func (c *LruCache[T]) moveNodeToHead(key string, node *ListNode[T]) {
-
-	// if the node is already at the head, return
-	if node == c.head {
-		return
+func (lru *LRUCache) Get(value int) int {
+	// if the list is empty, return -1
+	if lru.Head == nil {
+		return -1
 	}
-	// if the node is at the tail, add it to the head it will automatically be removed from the tail
-	if node == c.tail {
-		c.addNodeToHead(key, node)
-		return
+	// if the value is in the list, return the value
+	node, ok := lru.Cache[value]
+	if !ok {
+		return -1
 	}
-	// if the node is in the middle, remove it from the middle
-	nxt := node.Next
-	prev := node.Prev
-	prev.Next = nxt
-	nxt.Prev = prev
-	// add it to the head
-	c.addNodeToHead(key, node)
+	// if the value is in the list, move it to the head
+	lru.moveNodeToHead(node)
+	return node.Value
 }
 
-// add a given node to the head of the list
-func (c *LruCache[T]) addNodeToHead(key string, node *ListNode[T]) {
-	// add the node to the cache
-	c.cache[key] = node
-	// if the list is empty, set the head and tail to the node
-	if c.head == nil {
-		c.head = node
-		c.tail = node
+func (lru *LRUCache) moveNodeToHead(node *ListNode) {
+	if node == lru.Head {
 		return
 	}
-	// if the list is not empty, set the head to the node
-	node.Next = c.head
-	c.head.Prev = node
-	c.head = node
-	// if the list is full, remove the least recently used item
-	if len(c.cache) >= c.size {
-		c.removeNodeFromTail()
+	if node == lru.Tail {
+		lru.Tail = node.Prev
 	}
+	if node.Prev != nil {
+		node.Prev.Next = node.Next
+	}
+	if node.Next != nil {
+		node.Next.Prev = node.Prev
+	}
+	node.Next = lru.Head
+	node.Prev = nil
+	lru.Head.Prev = node
+	lru.Head = node
 }
 
-// remove the least recently used item from the tail of the list
-func (c *LruCache[T]) removeNodeFromTail() {
-	// edge case if the list is empty
-	if c.tail == nil {
+func (lru *LRUCache) deleteNode() {
+	if lru.Tail == nil {
 		return
 	}
-	// the list is length 1
-	if c.tail == c.head {
-		c.tail = nil
-		c.head = nil
-		delete(c.cache, c.tail.Key)
-		return
+	tailNode := lru.Tail
+	delete(lru.Cache, tailNode.Value)
+	if tailNode.Prev != nil {
+		tailNode.Prev.Next = nil
 	}
-	c.tail = c.tail.Prev
-	c.tail.Next = nil
-	delete(c.cache, c.tail.Key)
-}
-
-func (c *LruCache[T]) printList() {
-	node := c.head
-	for node != nil {
-		fmt.Println(node.Key, node.Value)
-		node = node.Next
+	tailNode.Prev = nil
+	tailNode.Next = nil
+	lru.Tail = tailNode.Prev
+	if lru.Tail == nil {
+		lru.Head = nil
 	}
-	fmt.Println("tail", c.tail.Value)
-	fmt.Println("head", c.head.Value)
 }
