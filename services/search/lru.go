@@ -5,31 +5,32 @@ import (
 	"strings"
 )
 
-type ListNode struct {
-	Value int
-	Prev  *ListNode
-	Next  *ListNode
+type ListNode[K comparable, V any] struct {
+	Key   K
+	Value V
+	Prev  *ListNode[K, V]
+	Next  *ListNode[K, V]
 }
 
-type LRUCache struct {
+type LRUCache[K comparable, V any] struct {
 	Capacity int
-	Head     *ListNode
-	Tail     *ListNode
-	Cache    map[int]*ListNode
+	Head     *ListNode[K, V]
+	Tail     *ListNode[K, V]
+	Cache    map[K]*ListNode[K, V]
 }
 
-func NewLRUCache(capacity int) LRUCache {
-	lru := LRUCache{
+func NewLRUCache[K comparable, V any](capacity int) LRUCache[K, V] {
+	lru := LRUCache[K, V]{
 		Capacity: capacity,
 		Head:     nil,
 		Tail:     nil,
-		Cache:    make(map[int]*ListNode),
+		Cache:    make(map[K]*ListNode[K, V]),
 	}
 	return lru
 }
 
 // to string function
-func (lru *LRUCache) String() string {
+func (lru *LRUCache[K, V]) String() string {
 	var sb strings.Builder
 	// go through string and add each value to the result
 	current := lru.Head
@@ -37,9 +38,9 @@ func (lru *LRUCache) String() string {
 	for current != nil {
 		var str string
 		if current.Next == nil {
-			str = fmt.Sprintf("%d", current.Value)
+			str = fmt.Sprintf("{%v: %v}", current.Key, current.Value)
 		} else {
-			str = fmt.Sprintf("%d, ", current.Value)
+			str = fmt.Sprintf("{%v: %v}, ", current.Key, current.Value)
 		}
 		sb.WriteString(str)
 		current = current.Next
@@ -48,50 +49,52 @@ func (lru *LRUCache) String() string {
 	return sb.String()
 }
 
-func (lru *LRUCache) Put(value int) {
+func (lru *LRUCache[K, V]) Put(key K, value V) {
 	if lru.Capacity == 0 {
 		return
 	}
 	// if the list is empty, add the value to the head
 	if lru.Head == nil {
-		lru.Head = &ListNode{Value: value}
+		lru.Head = &ListNode[K, V]{Key: key, Value: value}
 		lru.Tail = lru.Head
-		lru.Cache[value] = lru.Head
+		lru.Cache[key] = lru.Head
 		return
 	}
 	// if the list is not empty, add the value to the head
-	node, ok := lru.Cache[value]
+	node, ok := lru.Cache[key]
 	if ok {
 		lru.moveNodeToHead(node)
 		node.Value = value
+		node.Key = key
 		return
 	}
-	newNode := &ListNode{Value: value}
+	newNode := &ListNode[K, V]{Key: key, Value: value}
 	newNode.Next = lru.Head
 	lru.Head.Prev = newNode
 	lru.Head = newNode
-	lru.Cache[value] = newNode
+	lru.Cache[key] = newNode
 	if len(lru.Cache) > lru.Capacity {
 		lru.deleteNode()
 	}
 }
 
-func (lru *LRUCache) Get(value int) int {
+func (lru *LRUCache[K, V]) Get(key K) V {
+	var zero V
 	// if the list is empty, return -1
 	if lru.Head == nil {
-		return -1
+		return zero
 	}
 	// if the value is in the list, return the value
-	node, ok := lru.Cache[value]
+	node, ok := lru.Cache[key]
 	if !ok {
-		return -1
+		return zero
 	}
 	// if the value is in the list, move it to the head
 	lru.moveNodeToHead(node)
 	return node.Value
 }
 
-func (lru *LRUCache) moveNodeToHead(node *ListNode) {
+func (lru *LRUCache[K, V]) moveNodeToHead(node *ListNode[K, V]) {
 	if node == lru.Head {
 		return
 	}
@@ -110,12 +113,12 @@ func (lru *LRUCache) moveNodeToHead(node *ListNode) {
 	lru.Head = node
 }
 
-func (lru *LRUCache) deleteNode() {
+func (lru *LRUCache[K, V]) deleteNode() {
 	if lru.Tail == nil {
 		return
 	}
 	tailNode := lru.Tail
-	delete(lru.Cache, tailNode.Value)
+	delete(lru.Cache, tailNode.Key)
 	prev := tailNode.Prev
 	if prev != nil {
 		prev.Next = nil
