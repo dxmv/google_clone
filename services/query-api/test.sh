@@ -1,1 +1,1 @@
-curl -X POST http://localhost:8000/api/search -H "Content-Type: application/json" -d '{"query": "logic"}'
+time curl -X POST http://localhost:8000/api/search -H "Content-Type: application/json" -d '{"query": "logic math"}'

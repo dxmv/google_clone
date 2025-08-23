@@ -36,6 +36,7 @@ type Corpus interface {
 	GetHTML(ctx context.Context, hash string) ([]byte, error)
 	ListMetadata(ctx context.Context) ([]DocMetadata, error)
 	GetMetadata(ctx context.Context, docID string) (DocMetadata, error)
+	GetBatchMetadata(ctx context.Context, docIDs []string) ([]DocMetadata, error)
 }
 
 type MinoMongoCorpus struct {

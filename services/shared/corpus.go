@@ -94,9 +94,25 @@ func (c *MinoMongoCorpus) GetMetadata(ctx context.Context, docID string) (DocMet
 	coll := c.mongoClient.Database(c.databaseName).Collection(c.collectionName)
 	var doc DocMetadata
 	log.Println("docID", docID)
-	err := coll.FindOne(ctx, bson.D{{"hash", docID}}).Decode(&doc) // TODO: check if this is correct
+	err := coll.FindOne(ctx, bson.D{{"hash", docID}}).Decode(&doc)
 	if err != nil {
 		return DocMetadata{}, err
 	}
 	return doc, nil
+}
+
+func (c *MinoMongoCorpus) GetBatchMetadata(ctx context.Context, docIDs []string) ([]DocMetadata, error) {
+	coll := c.mongoClient.Database(c.databaseName).Collection(c.collectionName)
+	cursor, err := coll.Find(ctx, bson.D{{"hash", bson.D{{"$in", docIDs}}}})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var docs []DocMetadata
+	err = cursor.All(ctx, &docs)
+	if err != nil {
+		return nil, err
+	}
+	return docs, nil
 }

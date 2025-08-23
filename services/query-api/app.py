@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
 import httpx  # or requests
 import uvicorn
@@ -7,6 +8,10 @@ import grpc
 from pb import search_pb2_grpc, search_pb2
 
 app = FastAPI()
+
+# Add gzip compression middleware for better performance
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 app.add_middleware(
   CORSMiddleware,
   allow_origins = ["*"],
@@ -41,7 +46,6 @@ async def search(request: SearchRequest):
                 "depth": result.Doc.depth,
                 "title": result.Doc.title,
                 "hash": result.Doc.hash,
-                "links": list(result.Doc.links)  # Convert repeated field to list
             },
             "score": result.Score,
             "term_count": result.TermCount

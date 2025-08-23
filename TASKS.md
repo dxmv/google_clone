@@ -2,10 +2,8 @@
 - [x] General LRU
 - [x] Generic LRU
 - [x] Use LRU in search service
-- [ ] Check if it still works
-- [ ] Batch metadata request
-- [ ] Use min-heap in search
-
+- [x] Check if it still works
+- [x] Batch metadata request
 
 
 # 24.08.2025

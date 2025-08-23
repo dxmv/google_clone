@@ -42,19 +42,25 @@ func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (
 	} else {
 		results = results[offset : offset+req.Count]
 	}
-	finalResults := make([]*pb.SearchResult, len(results))
+	docIDs := make([]string, len(results))
 	for i, result := range results {
-		docMetadata, err := s.storage.GetMetadata(result.Hash)
-		if err != nil {
-			log.Fatalf("failed to get metadata: %v", err)
-		}
+		docIDs[i] = result.Hash
+	}
+	docs, err := s.storage.Corpus.GetBatchMetadata(ctx, docIDs)
+	if err != nil {
+		log.Fatalf("failed to get metadata: %v", err)
+	}
+	finalResults := make([]*pb.SearchResult, len(results))
+
+	for i, result := range results {
+		docMetadata := docs[i]
 		finalResults[i] = &pb.SearchResult{
 			Doc: &pb.DocMetadata{
 				Url:   docMetadata.URL,
 				Depth: int32(docMetadata.Depth),
 				Title: docMetadata.Title,
 				Hash:  docMetadata.Hash,
-				Links: docMetadata.Links,
+				Links: docMetadata.Links[:3],
 			},
 			Score:     result.Score,
 			TermCount: int32(result.CountTerm),
