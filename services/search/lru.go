@@ -78,20 +78,20 @@ func (lru *LRUCache[K, V]) Put(key K, value V) {
 	}
 }
 
-func (lru *LRUCache[K, V]) Get(key K) V {
+func (lru *LRUCache[K, V]) Get(key K) (V, bool) {
 	var zero V
 	// if the list is empty, return -1
 	if lru.Head == nil {
-		return zero
+		return zero, false
 	}
 	// if the value is in the list, return the value
 	node, ok := lru.Cache[key]
 	if !ok {
-		return zero
+		return zero, false
 	}
 	// if the value is in the list, move it to the head
 	lru.moveNodeToHead(node)
-	return node.Value
+	return node.Value, true
 }
 
 func (lru *LRUCache[K, V]) moveNodeToHead(node *ListNode[K, V]) {

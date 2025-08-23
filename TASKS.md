@@ -1,11 +1,11 @@
 # 23.08.2025
 - [x] General LRU
 - [x] Generic LRU
-- [ ] Move LRU to shared
-- [ ] Use LRU in search service
+- [x] Use LRU in search service
 - [ ] Check if it still works
-- [ ] Use min-heap in search
 - [ ] Batch metadata request
+- [ ] Use min-heap in search
+
 
 
 # 24.08.2025

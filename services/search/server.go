@@ -18,14 +18,17 @@ type searchServer struct {
 	storage        *shared.Storage
 	avgDocLength   float64
 	collectionSize int64
+	cache          *LRUCache[string, []SearchResult]
 }
 
-func NewSearchServer(storage *shared.Storage, avgDocLength float64, collectionSize int64) *searchServer {
-	return &searchServer{storage: storage, avgDocLength: avgDocLength, collectionSize: collectionSize}
+func NewSearchServer(storage *shared.Storage, avgDocLength float64, collectionSize int64, cache *LRUCache[string, []SearchResult]) *searchServer {
+	return &searchServer{storage: storage, avgDocLength: avgDocLength, collectionSize: collectionSize,
+		cache: cache,
+	}
 }
 
 func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
-	results := search(req.Query, s.storage, s.avgDocLength, s.collectionSize)
+	results := search(req.Query, s.storage, s.avgDocLength, s.collectionSize, s.cache)
 
 	// pagination here
 	offset := (req.Page - 1) * req.Count // start index
@@ -76,6 +79,7 @@ func startServer(storage *shared.Storage) {
 	}
 	collectionSize := int64(stats.TotalDocs)
 	fmt.Println("Avg doc length:", stats.AvgDocLength)
-	pb.RegisterSearchServer(grpcServer, NewSearchServer(storage, stats.AvgDocLength, collectionSize))
+	cache := NewLRUCache[string, []SearchResult](1000)
+	pb.RegisterSearchServer(grpcServer, NewSearchServer(storage, stats.AvgDocLength, collectionSize, &cache))
 	grpcServer.Serve(lis)
 }

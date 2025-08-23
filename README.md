@@ -100,7 +100,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
       - [x] Save doc length for each file in badger db
       - [x] Use that database instead of mongo for search
       - [x] Only fetch from mongodb in the end of search (to get paginated results) 
-   - [ ] Create a LRU for search, where we'll store results for a query
+   - [x] Create a LRU for search, where we'll store results for a query
    - [ ] Batch metadata request
    - [ ] Use min-heap in search
 

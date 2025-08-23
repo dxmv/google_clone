@@ -51,9 +51,14 @@ func worker(id int, jobs <-chan Job, results chan<- SearchResult, wg *sync.WaitG
 
 // search performs search query and returns top k results
 // Fetches postings, scores documents, and ranks by relevance
-func search(query string, storage *shared.Storage, avgDocLength float64, collectionSize int64) []SearchResult {
+func search(query string, storage *shared.Storage, avgDocLength float64, collectionSize int64, cache *LRUCache[string, []SearchResult]) []SearchResult {
 	// parse and tokenize query
 	queryTerms := shared.Tokenize(query) // will be a map of term to frequency
+
+	res, ok := cache.Get(query)
+	if ok {
+		return res
+	}
 
 	// for each term, fetch postings
 	docMap := make(map[string]SearchResult)
@@ -111,6 +116,9 @@ func search(query string, storage *shared.Storage, avgDocLength float64, collect
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].Score > results[j].Score
 	})
+
+	// cache the result
+	cache.Put(query, results)
 
 	return results
 }
