@@ -13,7 +13,12 @@ import (
 
 // Returns the body of the page
 func fetch(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", "GoogleClone-Crawler/1.0 (Educational Project)")
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

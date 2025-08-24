@@ -102,40 +102,48 @@ This repository is a from-scratch mini search engine designed to mirror the core
       - [x] Only fetch from mongodb in the end of search (to get paginated results) 
    - [x] Create a LRU for search, where we'll store results for a query
    - [x] Batch metadata request
+   - [ ] Use maxheap to sort results
 
 
 **Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate directly. <1s for queries with a lot of results like 'logic' or 'math'
 
 ---
 
-## Phase 5 – **User experience polish**
+## Phase 5 – **Specific crawling & improvements**
+
+1. **Crawler V3**
+   - [x] Figure out what kind of search engine we want, and crawl those pages, like if we want a stocks serach engine or something more specific - Wikipedia
+   - [x] Remove outlinks from metadata in crawler
+   - [ ] Add first paragraph to metadata
+   - [ ] Add image links from the page to metadata
+   - [ ] Add a simple delay
+   - [ ] Batch write to both pages and metadata storage
+
+2. **Strip HTML tags**
+   - [ ] Strip html tags and only save content in crawler, to reduce the size of corpus
+   - [ ] Remove the parse code from indexer
+
+3. **Improvements**
+   - [ ] Use cloud storage
+   - [ ] 50k-100k pages craweled
+
+**Milestone:** Optimized crawler, and a large corpus.
+
+---
+
+## Phase 6 – **User experience polish**
 
 1. **Better UI**
    - [ ] Make a new figma design 
    - [ ] Implement the full design
+
 2. **Autocomplete**
    - [ ] Top query n‑grams in a Redis trie (<5 ms).
-3. **Analytics dashboard**
-   - [ ] Grafana/Loki: top queries, zero‑result rate, latency histograms.
+
+3. **Spell checking**
+   - [ ] 'Did you mean' text for spell fixing
 
 **Milestone:** Search feels “Google‑ish”; real usage graphs live.
-
----
-
-## Phase 6 – **Specific crawling & improvements**
-
-1. **Crawler V3**
-   - [ ] Figure out what kind of search engine we want, and crawl those pages, like if we want a stocks serach engine or something more specific
-   - [ ] Make the delay better
-   - [ ] TTL old pages and re‑crawl on expiry
-
-2. **News tab**
-   - [ ] Crawler tags the pages in metadata with 'news' tag
-
-3. **Images tab**
-   - [ ] Crawler fetches the images
-
-**Milestone:** Image and news tab when searching, and now usefull
 
 ---
 

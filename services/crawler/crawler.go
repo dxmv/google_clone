@@ -18,7 +18,6 @@ type DocMetadata struct {
 	Depth         int
 	Title         string
 	Hash          string
-	Links         []string
 	ContentLength int
 	CrawledAt     time.Time
 }
@@ -110,7 +109,6 @@ func (c *Crawler) processJob(job Job) {
 		Title:         "",
 		Hash:          "",
 		ContentLength: 0,
-		Links:         []string{},
 	}
 	// get the html
 	body, err := fetch(job.URL)
@@ -121,7 +119,6 @@ func (c *Crawler) processJob(job Job) {
 
 	// extract the links from the html
 	links := extractLinks(body, &docMetadata)
-	docMetadata.Links = links
 	docMetadata.ContentLength = len(body)
 	docMetadata.CrawledAt = time.Now()
 	// add new jobs to the queue

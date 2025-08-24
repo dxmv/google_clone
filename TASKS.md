@@ -7,6 +7,15 @@
 
 
 # 24.08.2025
-- [ ] Figure out what kind of crawler will this be
+- [x] Figure out what kind of crawler will this be
+- [ ] Remove outlinks from metadata in crawler
+- [ ] Add first paragraph to metadata
+- [ ] Add image links from the page to metadata
+- [ ] Use a maxheap for results
+
+
+
+
+
 - [ ] Move crawler html to S3
 - [ ] Fetch 50k pages
