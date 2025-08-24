@@ -59,6 +59,45 @@ func handleImageSrc(src string) (string, error) {
 	return src, nil
 }
 
+func processBodyOfDoc(n *html.Node, docMetadata *DocMetadata) {
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		// Extract first paragraph with proper text handling
+		if c.Type == html.ElementNode && c.Data == "p" && docMetadata.FirstParagraph == "" {
+			paragraphText := getTextContent(c)
+			if len(strings.TrimSpace(paragraphText)) > 0 {
+				docMetadata.FirstParagraph = strings.TrimSpace(paragraphText)
+			}
+		}
+
+		// Extract images
+		if c.Type == html.ElementNode && c.Data == "img" {
+			for _, attr := range c.Attr {
+				if attr.Key == "src" {
+					imageUrl, _ := handleImageSrc(attr.Val)
+					docMetadata.Images = append(docMetadata.Images, imageUrl)
+					break
+				}
+			}
+		}
+
+		// Recursively process child nodes
+		processBodyOfDoc(c, docMetadata)
+	}
+}
+
+// Helper function to extract all text content from a node
+func getTextContent(n *html.Node) string {
+	if n.Type == html.TextNode {
+		return n.Data
+	}
+
+	var text strings.Builder
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		text.WriteString(getTextContent(c))
+	}
+	return text.String()
+}
+
 // Returns the links on the page
 func extractLinks(body []byte, docMetadata *DocMetadata) []string {
 
@@ -80,16 +119,11 @@ func extractLinks(body []byte, docMetadata *DocMetadata) []string {
 				}
 			}
 		}
-		// images - extract src attribute from img tags
-		if n.Type == html.ElementNode && n.Data == "img" {
+		// process the body of the document
+		if n.Type == html.ElementNode && n.Data == "div" {
 			for _, attr := range n.Attr {
-				if attr.Key == "src" {
-					imageUrl, err := handleImageSrc(attr.Val)
-					if err != nil {
-						continue
-					}
-					docMetadata.Images = append(docMetadata.Images, imageUrl)
-					break
+				if attr.Key == "id" && attr.Val == "mw-content-text" {
+					processBodyOfDoc(n, docMetadata)
 				}
 			}
 		}

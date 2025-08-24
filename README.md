@@ -116,7 +116,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Add a user agent
    - [x] Remove outlinks from metadata in crawler
    - [x] Add image links from the page to metadata
-   - [ ] Add first paragraph to metadata
+   - [x] Add first paragraph to metadata
    - [ ] Batch write to both pages and metadata storage
 
 2. **Strip HTML tags**
