@@ -8,9 +8,9 @@
 
 # 24.08.2025
 - [x] Figure out what kind of crawler will this be
-- [ ] Remove outlinks from metadata in crawler
+- [x] Remove outlinks from metadata in crawler
+- [x] Add image links from the page to metadata
 - [ ] Add first paragraph to metadata
-- [ ] Add image links from the page to metadata
 - [ ] Use a maxheap for results
 
 

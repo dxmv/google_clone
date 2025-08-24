@@ -14,12 +14,14 @@ type Job struct {
 }
 
 type DocMetadata struct {
-	URL           string
-	Depth         int
-	Title         string
-	Hash          string
-	ContentLength int
-	CrawledAt     time.Time
+	URL            string
+	Depth          int
+	Title          string
+	Hash           string
+	ContentLength  int
+	CrawledAt      time.Time
+	FirstParagraph string
+	Images         []string
 }
 
 /*
@@ -104,11 +106,13 @@ func (c *Crawler) processJob(job Job) {
 	c.visited.Add(job.URL)
 
 	docMetadata := DocMetadata{
-		URL:           job.URL,
-		Depth:         job.Depth,
-		Title:         "",
-		Hash:          "",
-		ContentLength: 0,
+		URL:            job.URL,
+		Depth:          job.Depth,
+		Title:          "",
+		Hash:           "",
+		ContentLength:  0,
+		FirstParagraph: "",
+		Images:         []string{},
 	}
 	// get the html
 	body, err := fetch(job.URL)

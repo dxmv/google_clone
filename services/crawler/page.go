@@ -46,6 +46,19 @@ func handleHref(href string) (string, error) {
 	return res, nil
 }
 
+func handleImageSrc(src string) (string, error) {
+	// only accept images from wikipedia and skip the wikipedia logo
+	if !strings.Contains(src, "upload.wikimedia.org") {
+		return "", errors.New("image src is not from wikipedia or is the wikipedia logo")
+	}
+	if strings.HasPrefix(src, "//") {
+		src = "https:" + src
+	} else if strings.HasPrefix(src, "/") {
+		src = "https://en.wikipedia.org" + src
+	}
+	return src, nil
+}
+
 // Returns the links on the page
 func extractLinks(body []byte, docMetadata *DocMetadata) []string {
 
@@ -58,12 +71,25 @@ func extractLinks(body []byte, docMetadata *DocMetadata) []string {
 				if attr.Key == "href" {
 					href, err := handleHref(attr.Val)
 					if err != nil {
-						break
+						continue
 					}
 					if href == "" {
-						break
+						continue
 					}
 					links = append(links, href)
+				}
+			}
+		}
+		// images - extract src attribute from img tags
+		if n.Type == html.ElementNode && n.Data == "img" {
+			for _, attr := range n.Attr {
+				if attr.Key == "src" {
+					imageUrl, err := handleImageSrc(attr.Val)
+					if err != nil {
+						continue
+					}
+					docMetadata.Images = append(docMetadata.Images, imageUrl)
+					break
 				}
 			}
 		}

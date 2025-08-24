@@ -113,10 +113,10 @@ This repository is a from-scratch mini search engine designed to mirror the core
 
 1. **Crawler V3**
    - [x] Figure out what kind of search engine we want, and crawl those pages, like if we want a stocks serach engine or something more specific - Wikipedia
+   - [x] Add a user agent
    - [x] Remove outlinks from metadata in crawler
+   - [x] Add image links from the page to metadata
    - [ ] Add first paragraph to metadata
-   - [ ] Add image links from the page to metadata
-   - [ ] Add a simple delay
    - [ ] Batch write to both pages and metadata storage
 
 2. **Strip HTML tags**
