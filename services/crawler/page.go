@@ -59,6 +59,19 @@ func handleImageSrc(src string) (string, error) {
 	return src, nil
 }
 
+// Helper function to extract all text content from a node
+func getTextContent(n *html.Node) string {
+	if n.Type == html.TextNode {
+		return n.Data
+	}
+
+	var text strings.Builder
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		text.WriteString(getTextContent(c))
+	}
+	return text.String()
+}
+
 func processBodyOfDoc(n *html.Node, docMetadata *DocMetadata) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		// Extract first paragraph with proper text handling
@@ -70,7 +83,7 @@ func processBodyOfDoc(n *html.Node, docMetadata *DocMetadata) {
 		}
 
 		// Extract images
-		if c.Type == html.ElementNode && c.Data == "img" {
+		if c.Type == html.ElementNode && c.Data == "img" && len(docMetadata.Images) < 5 {
 			for _, attr := range c.Attr {
 				if attr.Key == "src" {
 					imageUrl, _ := handleImageSrc(attr.Val)
@@ -85,24 +98,10 @@ func processBodyOfDoc(n *html.Node, docMetadata *DocMetadata) {
 	}
 }
 
-// Helper function to extract all text content from a node
-func getTextContent(n *html.Node) string {
-	if n.Type == html.TextNode {
-		return n.Data
-	}
-
-	var text strings.Builder
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		text.WriteString(getTextContent(c))
-	}
-	return text.String()
-}
-
 // Returns the links on the page
 func extractLinks(body []byte, docMetadata *DocMetadata) []string {
 
 	var links []string
-
 	var traverse func(*html.Node)
 	traverse = func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {

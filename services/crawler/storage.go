@@ -8,6 +8,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Storage interface {
@@ -21,6 +22,8 @@ type Storage interface {
 type MinioMongoStorage struct {
 	mongoConnection *mongo.Client
 	minioClient     *minio.Client
+	metadataQueue   []interface{}
+	maxMetadataJobs int
 }
 
 func NewMinioMongoStorage(mongoUri string, minioClient *minio.Client, ctx context.Context) *MinioMongoStorage {
@@ -31,16 +34,14 @@ func NewMinioMongoStorage(mongoUri string, minioClient *minio.Client, ctx contex
 	return &MinioMongoStorage{
 		mongoConnection: mongoConnection,
 		minioClient:     minioClient,
+		metadataQueue:   make([]interface{}, 0),
+		maxMetadataJobs: 50,
 	}
 }
 
 func (s *MinioMongoStorage) CreateMetadataDirectory(name string) error {
 	// create a collection in mongodb
-	coll := s.mongoConnection.Database("crawler").Collection(name)
-	_, err := coll.InsertOne(context.Background(), bson.M{})
-	if err != nil {
-		return err
-	}
+	s.mongoConnection.Database("crawler").Collection(name)
 	return nil
 }
 
@@ -72,10 +73,29 @@ func (s *MinioMongoStorage) SaveHTML(hash string, body []byte) error {
 }
 
 func (s *MinioMongoStorage) SaveMetadata(docMetadata DocMetadata) error {
-	coll := s.mongoConnection.Database("crawler").Collection("metadata")
-	_, err := coll.InsertOne(context.Background(), docMetadata)
-	if err != nil {
-		return err
+	s.metadataQueue = append(s.metadataQueue, docMetadata)
+	if len(s.metadataQueue) >= s.maxMetadataJobs {
+		return s.saveBatchMetadata()
 	}
 	return nil
+}
+
+func (s *MinioMongoStorage) saveBatchMetadata() error {
+	if len(s.metadataQueue) == 0 {
+		return nil
+	}
+
+	coll := s.mongoConnection.Database("crawler").Collection("metadata")
+	models := make([]mongo.WriteModel, 0, len(s.metadataQueue))
+	for _, it := range s.metadataQueue {
+		m := it.(DocMetadata) // adjust if you store as interface{}
+		models = append(models, mongo.NewUpdateOneModel().
+			SetFilter(bson.M{"hash": m.Hash}). // or "url": m.URL
+			SetUpdate(bson.M{"$set": m}).      // full doc update
+			SetUpsert(true),
+		)
+	}
+	_, err := coll.BulkWrite(context.Background(), models, options.BulkWrite().SetOrdered(false))
+	s.metadataQueue = s.metadataQueue[:0]
+	return err
 }

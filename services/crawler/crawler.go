@@ -59,6 +59,7 @@ func NewCrawler(storage Storage, config *Config) *Crawler {
 func (c *Crawler) Start() error {
 	c.storage.CreateHTMLDirectory(c.config.PagesDir)
 	c.storage.CreateMetadataDirectory(c.config.MetadataDir)
+	t := time.Now()
 
 	// Start workers
 	for i := 0; i < c.config.NumWorkers; i++ {
@@ -84,6 +85,7 @@ func (c *Crawler) Start() error {
 	// print results
 	c.printResults()
 
+	fmt.Println("Crawler finished in", time.Since(t))
 	return nil
 }
 
