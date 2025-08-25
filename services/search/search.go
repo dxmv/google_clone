@@ -1,10 +1,10 @@
 package main
 
 import (
+	"container/heap"
 	"log"
 	"math"
 	"runtime"
-	"sort"
 	"sync"
 
 	shared "github.com/dxmv/google_clone/shared"
@@ -108,19 +108,56 @@ func search(query string, storage *shared.Storage, avgDocLength float64, collect
 		}
 	}
 
-	results := make([]SearchResult, 0, len(docMap))
+	// Use SearchHeap to sort results by score (max-heap)
+	searchHeap := &SearchHeap{}
+	heap.Init(searchHeap)
+
 	for _, result := range docMap {
+		heap.Push(searchHeap, result)
+	}
+
+	// Convert heap to sorted slice (highest scores first)
+	results := make([]SearchResult, 0, len(docMap))
+	for searchHeap.Len() > 0 {
+		result := heap.Pop(searchHeap).(SearchResult)
 		results = append(results, result)
 	}
-	// sort by score
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Score > results[j].Score
-	})
 
 	// cache the result
 	cache.Put(query, results)
 
 	return results
+}
+
+// searchPaginated performs search query and returns only the requested page of results
+// More efficient for large result sets as it only sorts/returns what's needed
+func searchPaginated(query string, storage *shared.Storage, avgDocLength float64, collectionSize int64, cache *LRUCache[string, []SearchResult], page, count int32) []SearchResult {
+	// First check if we have the full results cached
+	fullResults, ok := cache.Get(query)
+	if ok {
+		// If cached, just slice and return the requested page
+		offset := (page - 1) * count
+		if offset >= int32(len(fullResults)) {
+			return []SearchResult{}
+		}
+		if offset+count > int32(len(fullResults)) {
+			return fullResults[offset:]
+		}
+		return fullResults[offset : offset+count]
+	}
+
+	// If not cached, perform full search and cache it
+	allResults := search(query, storage, avgDocLength, collectionSize, cache)
+
+	// Return the requested page
+	offset := (page - 1) * count
+	if offset >= int32(len(allResults)) {
+		return []SearchResult{}
+	}
+	if offset+count > int32(len(allResults)) {
+		return allResults[offset:]
+	}
+	return allResults[offset : offset+count]
 }
 
 func calculateTopBottom(posting shared.Posting, docLength uint32, avgDocLength float64) (float64, float64) {

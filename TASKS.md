@@ -18,8 +18,8 @@
 - [x] Save only first 5 image links
 - [x] Batch write to both pages and metadata storage
 - [x] Modify the rest of the services and make sure that everything still works
-- [ ] Use min-heap in search
-- [ ] Make sure everything works
+- [x] Use min-heap in search
+- [x] Make sure everything works
 
 
 # 26.08.2025

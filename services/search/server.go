@@ -28,20 +28,8 @@ func NewSearchServer(storage *shared.Storage, avgDocLength float64, collectionSi
 }
 
 func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
-	results := search(req.Query, s.storage, s.avgDocLength, s.collectionSize, s.cache)
-
-	// pagination here
-	offset := (req.Page - 1) * req.Count // start index
-	// check if offset is out of bounds
-	if offset >= int32(len(results)) {
-		return &pb.SearchResponse{Results: []*pb.SearchResult{}}, nil
-	}
-	// check if offset + count is out of bounds
-	if offset+req.Count > int32(len(results)) {
-		results = results[offset:]
-	} else {
-		results = results[offset : offset+req.Count]
-	}
+	// Use the more efficient paginated search function
+	results := searchPaginated(req.Query, s.storage, s.avgDocLength, s.collectionSize, s.cache, req.Page, req.Count)
 	docIDs := make([]string, len(results))
 	for i, result := range results {
 		docIDs[i] = result.Hash
