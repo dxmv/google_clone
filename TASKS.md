@@ -11,10 +11,20 @@
 - [x] Remove outlinks from metadata in crawler
 - [x] Add image links from the page to metadata
 - [x] Add first paragraph to metadata
-- [ ] Batch write to both pages and metadata storage
 
 
 
+# 25.08.2025
+- [x] Save only first 5 image links
+- [x] Batch write to both pages and metadata storage
+- [x] Modify the rest of the services and make sure that everything still works
+- [ ] Use min-heap in search
+- [ ] Make sure everything works
+
+
+# 26.08.2025
+- [ ] Host page data in the cloud
+- [ ] 50-100k pages craweled
 
 
 - [ ] Move crawler html to S3

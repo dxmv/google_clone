@@ -56,11 +56,11 @@ func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (
 		docMetadata := docs[i]
 		finalResults[i] = &pb.SearchResult{
 			Doc: &pb.DocMetadata{
-				Url:   docMetadata.URL,
-				Depth: int32(docMetadata.Depth),
-				Title: docMetadata.Title,
-				Hash:  docMetadata.Hash,
-				Links: docMetadata.Links[:3],
+				Url:    docMetadata.URL,
+				Depth:  int32(docMetadata.Depth),
+				Title:  docMetadata.Title,
+				Hash:   docMetadata.Hash,
+				Images: docMetadata.Images,
 			},
 			Score:     result.Score,
 			TermCount: int32(result.CountTerm),

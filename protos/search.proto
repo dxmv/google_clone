@@ -27,5 +27,5 @@ message DocMetadata {
         int32  depth  = 2;
         string title  = 3;
         string hash   = 4;
-        repeated string links = 5;
+        repeated string images = 5;
 }

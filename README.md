@@ -117,13 +117,10 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Remove outlinks from metadata in crawler
    - [x] Add image links from the page to metadata
    - [x] Add first paragraph to metadata
-   - [ ] Batch write to both pages and metadata storage
+   - [x] Batch write to both minio and mongodb
 
-2. **Strip HTML tags**
-   - [ ] Strip html tags and only save content in crawler, to reduce the size of corpus
-   - [ ] Remove the parse code from indexer
-
-3. **Improvements**
+2. **Improvements**
+   - [ ] Check if a page has been craweled, crawl it only if 30 days have passed since last crawl, otherwise skip it
    - [ ] Use cloud storage
    - [ ] 50k-100k pages craweled
 
@@ -151,7 +148,6 @@ This repository is a from-scratch mini search engine designed to mirror the core
 
 - [ ] Docker‑compose → Kubernetes (kind/k3s).
 - [ ] Prometheus + Alertmanager (latency, error budget, disk).
-- [ ] Chaos testing: kill a Ranker pod; verify graceful degradation.
 
 ---
 

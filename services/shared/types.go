@@ -15,7 +15,7 @@ type DocMetadata struct {
 	Depth         int
 	Title         string
 	Hash          string
-	Links         []string
+	Images        []string
 	ContentLength int
 	CrawledAt     time.Time
 }
