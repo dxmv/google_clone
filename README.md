@@ -90,8 +90,9 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Abstract the reading files
    - [x] Make the indexer use that new storage method when indexing
    - [x] Put the corpus type inside of db, and don't save metadata in badger anymore, use mongo's metadata
-   - [ ] Write new segments
-   - [ ] Background merge
+   - [ ] Save position and offset of each word
+   - [ ] Save which field this word appeared (title,h1,h2...)
+   - [ ] Sort index to make look-up faster
 3. **Search service**
    - [x] Seperate the search stuff into a seperate go service
    - [x] Use gRPC for communication between query-api
@@ -103,6 +104,8 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Create a LRU for search, where we'll store results for a query
    - [x] Batch metadata request
    - [x] Use heap to sort results
+   - [ ] Utilize position and offset
+   - [ ] Use BM25F to rank the pages
 
 
 **Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate directly. <1s for queries with a lot of results like 'logic' or 'math'

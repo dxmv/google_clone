@@ -23,6 +23,25 @@
 
 
 # 26.08.2025
-- [ ] Check if a page has been craweled, crawl it only if 30 days have passed since last crawl, otherwise skip it
 - [x] Host page data in the cloud
-- [ ] 50-100k pages craweled
+
+# 27.08.2025
+- [ ] Indexer modifications
+- [ ] Search modifications
+
+# 28.08.2025
+- [ ] Don't crawl pages that have been craweled recently
+- [ ] Crawl 50-100k pages
+
+# 29.08.2025
+- [ ] Make a new figma design 
+- [ ] Implement the full design
+
+# 30.08.2025
+- [ ] Dockerize everything
+- [ ] Write a good readme
+
+# 31.08.2025
+- [ ] Record 60sec demo video
+- [ ] Add it to readme
+- [ ] Modify CV bullets for this project
