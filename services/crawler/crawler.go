@@ -57,7 +57,7 @@ func NewCrawler(storage Storage, config *Config) *Crawler {
 
 // Start starts the crawler
 func (c *Crawler) Start() error {
-	c.storage.CreateHTMLDirectory(c.config.PagesDir)
+	// c.storage.CreateHTMLDirectory(c.config.PagesDir)
 	c.storage.CreateMetadataDirectory(c.config.MetadataDir)
 	t := time.Now()
 

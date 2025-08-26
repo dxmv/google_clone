@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const PAGES_DIR = "pages"
+const PAGES_DIR = "crawler-pages"
 const METADATA_DIR = "metadata"
 
 type Config struct {
@@ -29,11 +29,11 @@ type Config struct {
 
 func NewConfig() *Config {
 	monogUri := os.Getenv("MONGO_CONNECTION")
-	minioClient, err := newMinioConnection()
+	minioClient, err := newR2Client()
 	if err != nil {
 		log.Println("Error creating minio client", err)
-		return nil
 	}
+
 	return &Config{
 		StartLinks: []string{
 			"https://en.wikipedia.org/wiki/Philosophy",
@@ -58,20 +58,19 @@ func newMongoConnection(uri string, ctx context.Context) (*mongo.Client, error) 
 	return client, nil
 }
 
-func newMinioConnection() (*minio.Client, error) {
-	// read env variables
-	endpoint := os.Getenv("MINIO_ENDPOINT")
+func newR2Client() (*minio.Client, error) {
+	endpoint := os.Getenv("MINIO_ENDPOINT") // e.g. 0aef...r2.cloudflarestorage.com
 	accessKey := os.Getenv("MINIO_ACCESS_KEY")
 	secretKey := os.Getenv("MINIO_SECRET_KEY")
-	useSSL := false
 
-	// create minio client
-	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-		Secure: useSSL,
+	client, err := minio.New(endpoint, &minio.Options{
+		Creds:        credentials.NewStaticV4(accessKey, secretKey, ""),
+		Secure:       true,                  // R2 is HTTPS-only
+		Region:       "auto",                // R2 expects "auto"
+		BucketLookup: minio.BucketLookupDNS, // virtual-hosted style works best
 	})
 	if err != nil {
 		return nil, err
 	}
-	return minioClient, nil
+	return client, nil
 }

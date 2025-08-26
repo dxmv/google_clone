@@ -23,9 +23,6 @@
 
 
 # 26.08.2025
-- [ ] Host page data in the cloud
+- [ ] Check if a page has been craweled, crawl it only if 30 days have passed since last crawl, otherwise skip it
+- [x] Host page data in the cloud
 - [ ] 50-100k pages craweled
-
-
-- [ ] Move crawler html to S3
-- [ ] Fetch 50k pages

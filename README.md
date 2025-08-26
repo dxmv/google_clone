@@ -121,7 +121,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
 
 2. **Improvements**
    - [ ] Check if a page has been craweled, crawl it only if 30 days have passed since last crawl, otherwise skip it
-   - [ ] Use cloud storage
+   - [x] Use cloud storage
    - [ ] 50k-100k pages craweled
 
 **Milestone:** Optimized crawler, and a large corpus.
@@ -140,7 +140,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
 3. **Spell checking**
    - [ ] 'Did you mean' text for spell fixing
 
-**Milestone:** Search feels “Google‑ish”; real usage graphs live.
+**Milestone:** Google user experience
 
 ---
 
