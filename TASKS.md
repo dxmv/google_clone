@@ -26,16 +26,22 @@
 - [x] Host page data in the cloud
 
 # 27.08.2025
-- [ ] Indexer modifications
-- [ ] Search modifications
+- [x] Save position of each word
+
+
 
 # 28.08.2025
-- [ ] Don't crawl pages that have been craweled recently
-- [ ] Crawl 50-100k pages
+- [ ] Save which field this word appeared (title,h1,h2...)
+- [ ] Sort posting by docId to make look-up faster
+- [ ] Search modifications
+- [ ] Make a new figma design 
+
 
 # 29.08.2025
-- [ ] Make a new figma design 
+
 - [ ] Implement the full design
+- [ ] Don't crawl pages that have been craweled recently
+- [ ] Crawl 50-100k pages
 
 # 30.08.2025
 - [ ] Dockerize everything

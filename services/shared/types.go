@@ -22,8 +22,9 @@ type DocMetadata struct {
 
 // Posting represents a document's relevance for a term
 type Posting struct {
-	DocID []byte
-	Count int
+	DocID     []byte
+	Count     int
+	Positions []int
 }
 
 // Stats represents the statistics of the index

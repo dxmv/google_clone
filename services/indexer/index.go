@@ -9,13 +9,13 @@ import (
 )
 
 // addToIndex merges a document's term frequency map into the global inverted index
-func addToIndex(docID []byte, termFreq map[string]int, postings map[string][]shared.Posting) {
+func addToIndex(docID []byte, termFreq map[string]int, posMap map[string][]int, postings map[string][]shared.Posting) {
 	for term, count := range termFreq {
 		_, ok := postings[term]
 		if ok {
-			postings[term] = append(postings[term], shared.Posting{DocID: docID, Count: count})
+			postings[term] = append(postings[term], shared.Posting{DocID: docID, Count: count, Positions: posMap[term]})
 		} else {
-			posting := shared.Posting{DocID: docID, Count: count}
+			posting := shared.Posting{DocID: docID, Count: count, Positions: posMap[term]}
 			postings[term] = []shared.Posting{posting}
 		}
 	}
@@ -33,10 +33,10 @@ func index_file(htmlString string, id []byte, postings map[string][]shared.Posti
 	fmt.Println("Parsed html...\nTokenizing...")
 
 	// Tokenize the text
-	termFreq := shared.Tokenize(text)
+	termFreq, posMap := shared.Tokenize(text)
 
 	// add it to the index
-	addToIndex(id, termFreq, postings)
+	addToIndex(id, termFreq, posMap, postings)
 	fmt.Println("Added to index...")
 
 }

@@ -90,9 +90,10 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Abstract the reading files
    - [x] Make the indexer use that new storage method when indexing
    - [x] Put the corpus type inside of db, and don't save metadata in badger anymore, use mongo's metadata
-   - [ ] Save position and offset of each word
+   - [ ] Save position of each word
    - [ ] Save which field this word appeared (title,h1,h2...)
-   - [ ] Sort index to make look-up faster
+   - [ ] Sort posting by docId to make look-up faster
+
 3. **Search service**
    - [x] Seperate the search stuff into a seperate go service
    - [x] Use gRPC for communication between query-api
@@ -121,6 +122,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Add image links from the page to metadata
    - [x] Add first paragraph to metadata
    - [x] Batch write to both minio and mongodb
+   - [ ] Different hash
 
 2. **Improvements**
    - [ ] Check if a page has been craweled, crawl it only if 30 days have passed since last crawl, otherwise skip it
