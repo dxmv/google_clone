@@ -16,6 +16,7 @@ type Storage interface {
 	SaveMetadata(docMetadata DocMetadata) error
 	CreateMetadataDirectory(name string) error
 	CreateHTMLDirectory(name string) error
+	FlushMetadata() error
 }
 
 // minio and mongodb storage
@@ -35,7 +36,7 @@ func NewMinioMongoStorage(mongoUri string, minioClient *minio.Client, ctx contex
 		mongoConnection: mongoConnection,
 		minioClient:     minioClient,
 		metadataQueue:   make([]interface{}, 0),
-		maxMetadataJobs: 50,
+		maxMetadataJobs: 300,
 	}
 }
 
@@ -67,7 +68,7 @@ func (s *MinioMongoStorage) SaveHTML(hash string, body []byte) error {
 	// upload the html to minio
 	_, err := s.minioClient.PutObject(context.Background(), PAGES_DIR, objectName, bytes.NewReader(body), int64(len(body)), minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
 	return nil
 }
@@ -98,4 +99,11 @@ func (s *MinioMongoStorage) saveBatchMetadata() error {
 	_, err := coll.BulkWrite(context.Background(), models, options.BulkWrite().SetOrdered(false))
 	s.metadataQueue = s.metadataQueue[:0]
 	return err
+}
+
+func (s *MinioMongoStorage) FlushMetadata() error {
+	if len(s.metadataQueue) == 0 {
+		return nil
+	}
+	return s.saveBatchMetadata()
 }

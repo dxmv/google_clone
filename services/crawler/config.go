@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const PAGES_DIR = "crawler-pages"
+const PAGES_DIR = "pages"
 const METADATA_DIR = "metadata"
 
 type Config struct {
@@ -29,7 +29,7 @@ type Config struct {
 
 func NewConfig() *Config {
 	monogUri := os.Getenv("MONGO_CONNECTION")
-	minioClient, err := newR2Client()
+	minioClient, err := newMinioConnection()
 	if err != nil {
 		log.Println("Error creating minio client", err)
 	}
@@ -73,4 +73,22 @@ func newR2Client() (*minio.Client, error) {
 		return nil, err
 	}
 	return client, nil
+}
+
+func newMinioConnection() (*minio.Client, error) {
+	// read env variables
+	endpoint := os.Getenv("MINIO_ENDPOINT")
+	accessKey := os.Getenv("MINIO_ACCESS_KEY")
+	secretKey := os.Getenv("MINIO_SECRET_KEY")
+	useSSL := false
+
+	// create minio client
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+		Secure: useSSL,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return minioClient, nil
 }

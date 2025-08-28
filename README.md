@@ -90,9 +90,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Abstract the reading files
    - [x] Make the indexer use that new storage method when indexing
    - [x] Put the corpus type inside of db, and don't save metadata in badger anymore, use mongo's metadata
-   - [ ] Save position of each word
-   - [ ] Save which field this word appeared (title,h1,h2...)
-   - [ ] Sort posting by docId to make look-up faster
+   - [x] Save position of each word
 
 3. **Search service**
    - [x] Seperate the search stuff into a seperate go service
@@ -105,8 +103,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Create a LRU for search, where we'll store results for a query
    - [x] Batch metadata request
    - [x] Use heap to sort results
-   - [ ] Utilize position and offset
-   - [ ] Use BM25F to rank the pages
+   - [ ] Utilize position in search
 
 
 **Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate directly. <1s for queries with a lot of results like 'logic' or 'math'
@@ -122,9 +119,10 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Add image links from the page to metadata
    - [x] Add first paragraph to metadata
    - [x] Batch write to both minio and mongodb
-   - [ ] Different hash
+   
 
 2. **Improvements**
+   - [ ] Different hash calcualtion
    - [ ] Check if a page has been craweled, crawl it only if 30 days have passed since last crawl, otherwise skip it
    - [x] Use cloud storage
    - [ ] 50k-100k pages craweled
@@ -151,12 +149,22 @@ This repository is a from-scratch mini search engine designed to mirror the core
 
 ## Phase 7 – **Hardening & Ops**
 
-- [ ] Docker‑compose → Kubernetes (kind/k3s).
-- [ ] Prometheus + Alertmanager (latency, error budget, disk).
+- [ ] Dockerise everything
 
 ---
 
 ## Phase 8 - **Final phase**
 
-- [ ] Figure out how to host everything
+- [ ] Record a demo video
 - [ ] Write a README.md for everything
+
+---
+## Improvement ideas
+- [ ] More specialized crawler
+- [ ] Bigger corpus (more pages craweled)
+- [ ] In indexer save html tag for each word, in search use html tag to add a bonus to the score
+- [ ] News tab
+- [ ] Image indexing
+- [ ] Actually host the app
+
+

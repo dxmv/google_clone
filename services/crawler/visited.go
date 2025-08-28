@@ -31,3 +31,15 @@ func (v *Visited) GetVisited() map[string]bool {
 	defer v.mu.Unlock()
 	return v.visited
 }
+
+func (v *Visited) CheckAndMark(url string) bool {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+
+	if v.visited[url] {
+		return true
+	}
+
+	v.visited[url] = true
+	return false
+}

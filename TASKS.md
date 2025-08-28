@@ -29,18 +29,17 @@
 - [x] Save position of each word
 
 
-
 # 28.08.2025
-- [ ] Save which field this word appeared (title,h1,h2...)
-- [ ] Sort posting by docId to make look-up faster
-- [ ] Search modifications
-- [ ] Make a new figma design 
+- [x] Check if indexing works with positions
+- [x] Fixed crawler 
+- [ ] Search modifications with positions
+- [ ] Check if a page has been craweled, crawl it only if 30 days have passed since last crawl, otherwise skip it
 
 
 # 29.08.2025
 
+- [ ] Make a new figma design 
 - [ ] Implement the full design
-- [ ] Don't crawl pages that have been craweled recently
 - [ ] Crawl 50-100k pages
 
 # 30.08.2025

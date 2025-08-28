@@ -35,6 +35,9 @@ func fetch(url string) ([]byte, error) {
 }
 
 func handleHref(href string) (string, error) {
+	if strings.Contains(href, "Special:") {
+		return "", errors.New("href is a special page")
+	}
 	if strings.HasPrefix(href, "#") {
 		msg := fmt.Sprintf("href %s is a fragment", href)
 		return "", errors.New(msg)

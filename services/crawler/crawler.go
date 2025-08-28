@@ -82,6 +82,12 @@ func (c *Crawler) Start() error {
 	c.wg.Wait()
 	close(c.jobs)
 
+	// flush metadata
+	err := c.storage.FlushMetadata()
+	if err != nil {
+		fmt.Println("Error flushing metadata", err)
+	}
+
 	// print results
 	c.printResults()
 
@@ -105,7 +111,9 @@ func (c *Crawler) processJob(job Job) {
 		return
 	}
 	// mark as visited
-	c.visited.Add(job.URL)
+	if c.visited.CheckAndMark(job.URL) {
+		return
+	}
 
 	docMetadata := DocMetadata{
 		URL:            job.URL,
@@ -149,6 +157,7 @@ func (c *Crawler) processJob(job Job) {
 	err = c.storage.SaveHTML(hashString, body)
 	if err != nil {
 		fmt.Println("Error saving HTML", err)
+		return
 	}
 
 	// save metadata
