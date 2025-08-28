@@ -148,3 +148,14 @@ func (s *Storage) GetDocLength(docID string) (uint32, error) {
 	})
 	return uint32(length), err
 }
+
+// returns postings for a term and then returns the positions of the term in the document
+func (s *Storage) GetPositions(term string, docID string) []int {
+	postings := s.GetPostings(term)
+	for _, posting := range postings {
+		if string(posting.DocID) == docID {
+			return posting.Positions
+		}
+	}
+	return []int{}
+}

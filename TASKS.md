@@ -32,8 +32,8 @@
 # 28.08.2025
 - [x] Check if indexing works with positions
 - [x] Fixed crawler 
-- [ ] Search modifications with positions
-- [ ] Check if a page has been craweled, crawl it only if 30 days have passed since last crawl, otherwise skip it
+- [x] Search modifications with positions
+
 
 
 # 29.08.2025

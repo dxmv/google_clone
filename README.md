@@ -103,7 +103,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Create a LRU for search, where we'll store results for a query
    - [x] Batch metadata request
    - [x] Use heap to sort results
-   - [ ] Utilize position in search
+   - [x] Utilize position in search
 
 
 **Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate directly. <1s for queries with a lot of results like 'logic' or 'math'
@@ -122,7 +122,6 @@ This repository is a from-scratch mini search engine designed to mirror the core
    
 
 2. **Improvements**
-   - [ ] Different hash calcualtion
    - [ ] Check if a page has been craweled, crawl it only if 30 days have passed since last crawl, otherwise skip it
    - [x] Use cloud storage
    - [ ] 50k-100k pages craweled
@@ -166,5 +165,6 @@ This repository is a from-scratch mini search engine designed to mirror the core
 - [ ] News tab
 - [ ] Image indexing
 - [ ] Actually host the app
+- [ ] Position highlighting
 
 

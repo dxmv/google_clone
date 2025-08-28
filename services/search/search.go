@@ -112,7 +112,38 @@ func search(query string, storage *shared.Storage, avgDocLength float64, collect
 	searchHeap := &SearchHeap{}
 	heap.Init(searchHeap)
 
+	// convert map keys to slice for indexing
+	terms := make([]string, 0, len(queryTerms))
+	for term := range queryTerms {
+		terms = append(terms, term)
+	}
 	for _, result := range docMap {
+		// calculate position bonuses
+		if result.CountTerm >= 2 {
+			bonus := 0.0
+
+			// for each adjacent term
+			for i := 0; i+1 < len(queryTerms); i++ {
+				term1 := terms[i]
+				term2 := terms[i+1]
+				// get the position of the term in the document
+				pos1 := storage.GetPositions(term1, result.Hash)
+				pos2 := storage.GetPositions(term2, result.Hash)
+				if len(pos1) == 0 || len(pos2) == 0 {
+					continue
+				}
+				// check if phrases are next to each other
+				hits := phraseHits(pos1, pos2)
+				if hits > 0 {
+					// limit hits to 3
+					if hits > 3 {
+						hits = 3
+					}
+					bonus += 0.5 * float64(hits)
+				}
+			}
+			result.Score += bonus
+		}
 		heap.Push(searchHeap, result)
 	}
 
@@ -179,4 +210,22 @@ func calculateIDF(numberOfDocumentsWithTerm int, collectionSize int64) float64 {
 		bottom = 0.5
 	}
 	return math.Log(top/bottom + 1)
+}
+
+// check how many times phrases are to each other
+func phraseHits(a, b []int) int {
+	i, j, hits := 0, 0, 0
+	for i < len(a) && j < len(b) {
+		d := b[j] - a[i]
+		if d == 1 {
+			hits++
+			i++
+			j++
+		} else if d > 1 {
+			i++
+		} else {
+			j++
+		}
+	}
+	return hits
 }
