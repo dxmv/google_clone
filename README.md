@@ -132,14 +132,14 @@ This repository is a from-scratch mini search engine designed to mirror the core
 ## Phase 6 – **User experience polish**
 
 1. **Better UI**
-   - [ ] Make a new figma design 
-   - [ ] Implement the full design
+   - [x] Make a new figma design 
+   - [x] Implement the full design
 
 2. **Autocomplete**
    - [ ] Top query n‑grams in a Redis trie (<5 ms).
 
 3. **Spell checking**
-   - [ ] 'Did you mean' text for spell fixing
+   - [x] 'Did you mean' text for spell fixing
 
 **Milestone:** Google user experience
 

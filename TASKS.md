@@ -38,14 +38,20 @@
 
 # 30.08.2025
 - [x] Make a new figma design 
-- [ ] Implement the full design
-- [ ] Crawl 50-100k pages
-- [ ] Index those pages
+- [x] Implement the full design
+- [x] 'Did you mean' text for spell fixing
+
 
 
 # 31.08.2025
+- [ ] Crawl 50-100k pages
+- [ ] Index those pages
 - [ ] Top query n‑grams in a Redis trie (<5 ms)
-- [ ] 'Did you mean' text for spell fixing
+
+# 01.09.2025
+- [ ] Error page
+- [ ] Loading page
+- [ ] Image page
 - [ ] Dockerize everything
 - [ ] Write a good readme
 - [ ] Record 60sec demo video
