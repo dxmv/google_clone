@@ -3,5 +3,7 @@ export interface SearchResult {
     hash: string;
     url: string;
     title: string;
+    score: number;
+    images: string[];
   };
 }

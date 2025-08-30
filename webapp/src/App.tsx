@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import Button from "./components/button";
-import { GithubIcon } from "lucide-react";
+import Layout from "./components/layout/layout";
 
 // Define the form data type
 type FormData = {
@@ -27,12 +27,7 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen w-screen"
-    style={{
-      backgroundImage: 'url(/bg.png)',
-      backgroundRepeat: 'repeat',
-      overflow: 'none',
-    }}>
+    <Layout>
       <main 
       className="flex flex-col items-center justify-center flex-1"
       >
@@ -44,12 +39,8 @@ function App() {
               <Button className="min-w-[150px] py-1">I'm Feeling Lucky</Button>
             </div>
         </form>
-
       </main>
-      <footer className="flex flex-row items-center justify-end gap-4 px-4 pb-2">
-        <GithubIcon color="#1A54CB"/>
-      </footer>
-    </div>
+    </Layout>
   )
 }
 

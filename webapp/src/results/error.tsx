@@ -1,9 +1,16 @@
-import React from 'react'
 
-function error() {
+import Layout from '../components/layout/layout'
+
+function Error() {
   return (
-    <div>error</div>
+    <Layout>
+      <main 
+      className="flex flex-col items-center justify-center flex-1"
+      >
+        <h1>Error</h1>
+      </main>
+    </Layout>
   )
 }
 
-export default error
+export default Error
