@@ -1,1 +1,34 @@
 @import "tailwindcss";
+
+*{
+        font-family: 'Times New Roman', Times, serif;
+}
+
+button{
+        border-radius: 0;
+        border: 1px solid black;
+        background: linear-gradient(to bottom, #ffffff, #E0E0E0,#C0C0C0);
+        box-shadow: inset -2px -2px 4px 0 rgba(0, 0, 0, 0.6);
+}
+
+button:hover{
+        background: linear-gradient(to bottom, #E0E0E0, #C0C0C0, #ffffff);
+        cursor: pointer;
+}
+
+button:active{
+        box-shadow: inset -2px -2px 4px 0 rgba(0, 0, 0, 0.6);
+}
+
+input[type="text"]{
+        border: 1px solid #7A797A;
+        border-radius: 0;
+        background: white;
+        box-shadow: inset -2px -2px 4px 0 rgba(0, 0, 0, 0.6);
+}
+
+input[type="text"]:focus{
+        outline: none;
+        border: 1px solid #7A797A;
+        box-shadow: inset -2px -2px 4px 0 rgba(0, 0, 0, 0.6);
+}

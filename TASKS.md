@@ -36,17 +36,18 @@
 
 
 
-# 29.08.2025
-
-- [ ] Make a new figma design 
+# 30.08.2025
+- [x] Make a new figma design 
 - [ ] Implement the full design
 - [ ] Crawl 50-100k pages
+- [ ] Index those pages
 
-# 30.08.2025
-- [ ] Dockerize everything
-- [ ] Write a good readme
 
 # 31.08.2025
+- [ ] Top query n‑grams in a Redis trie (<5 ms)
+- [ ] 'Did you mean' text for spell fixing
+- [ ] Dockerize everything
+- [ ] Write a good readme
 - [ ] Record 60sec demo video
 - [ ] Add it to readme
 - [ ] Modify CV bullets for this project

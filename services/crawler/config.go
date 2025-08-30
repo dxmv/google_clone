@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const PAGES_DIR = "pages"
+const PAGES_DIR = "crawler-pages"
 const METADATA_DIR = "metadata"
 
 type Config struct {
@@ -38,10 +38,21 @@ func NewConfig() *Config {
 		StartLinks: []string{
 			"https://en.wikipedia.org/wiki/Philosophy",
 			"https://en.wikipedia.org/wiki/Mathematics",
+			"https://en.wikipedia.org/wiki/Computer_science",
+			"https://en.wikipedia.org/wiki/Economics",
+			"https://en.wikipedia.org/wiki/Business",
+			"https://en.wikipedia.org/wiki/Finance",
+			"https://en.wikipedia.org/wiki/Astronomy",
+			"https://en.wikipedia.org/wiki/Biology",
+			"https://en.wikipedia.org/wiki/Chemistry",
+			"https://en.wikipedia.org/wiki/Literature",
+			"https://en.wikipedia.org/wiki/Physics",
+			"https://en.wikipedia.org/wiki/Psychology",
+			"https://en.wikipedia.org/wiki/Stock_market",
 		},
 		MaxDepth:    1,
-		JobsBuffer:  1000,
-		MaxRounds:   10,
+		JobsBuffer:  10000,
+		MaxRounds:   1000,
 		NumWorkers:  runtime.NumCPU(),
 		PagesDir:    PAGES_DIR,
 		MetadataDir: METADATA_DIR,

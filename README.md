@@ -122,7 +122,6 @@ This repository is a from-scratch mini search engine designed to mirror the core
    
 
 2. **Improvements**
-   - [ ] Check if a page has been craweled, crawl it only if 30 days have passed since last crawl, otherwise skip it
    - [x] Use cloud storage
    - [ ] 50k-100k pages craweled
 
