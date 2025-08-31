@@ -32,3 +32,55 @@ input[type="text"]:focus{
         border: 1px solid #7A797A;
         box-shadow: inset -2px -2px 4px 0 rgba(0, 0, 0, 0.6);
 }
+
+@keyframes indeterminate-loader {
+  0% {
+    left: -100%;
+    width: 100%;
+  }
+  100% {
+    left: 100%;
+    width: 10%;
+  }
+}
+
+.indeterminate-loader {
+  position: relative;
+  width: 200px;
+  height: 12px;
+  background: white;
+  overflow: hidden;
+  border: 1px solid black;
+  box-shadow: inset -2px -2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.indeterminate-loader::after {
+  content: '';
+  position: absolute;
+  height: 100%;
+  background: #1A54CB;
+  animation: indeterminate-loader 4s steps(8, end) infinite;
+}
+
+.loading-dots span {
+  animation: blink 2s steps(1, end) infinite both;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.75s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 1.5s;
+}
+
+@keyframes blink {
+  0%,
+  80%,
+  100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}

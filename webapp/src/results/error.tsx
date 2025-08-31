@@ -1,6 +1,5 @@
 
 import { X } from 'lucide-react'
-import Layout from '../components/layout/layout'
 import { Link } from 'react-router'
 
 function Error({error}: {error: string | null}) {
