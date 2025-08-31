@@ -44,13 +44,13 @@
 
 
 # 31.08.2025
+- [x] Error page
+- [ ] Loading page
 - [ ] Crawl 50-100k pages
 - [ ] Index those pages
 - [ ] Top query n‑grams in a Redis trie (<5 ms)
 
 # 01.09.2025
-- [ ] Error page
-- [ ] Loading page
 - [ ] Image page
 - [ ] Dockerize everything
 - [ ] Write a good readme
