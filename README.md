@@ -123,7 +123,8 @@ This repository is a from-scratch mini search engine designed to mirror the core
 
 2. **Improvements**
    - [x] Use cloud storage
-   - [ ] 50k-100k pages craweled
+   - [x] 50k-100k pages craweled
+   - [ ] Index those pages
 
 **Milestone:** Optimized crawler, and a large corpus.
 

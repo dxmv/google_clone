@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const PAGES_DIR = "crawler-pages"
+const PAGES_DIR = "pages"
 const METADATA_DIR = "metadata"
 
 type Config struct {
@@ -29,7 +29,7 @@ type Config struct {
 
 func NewConfig() *Config {
 	monogUri := os.Getenv("MONGO_CONNECTION")
-	minioClient, err := newMinioConnection()
+	minioClient, err := newR2Client()
 	if err != nil {
 		log.Println("Error creating minio client", err)
 	}
@@ -49,6 +49,31 @@ func NewConfig() *Config {
 			"https://en.wikipedia.org/wiki/Physics",
 			"https://en.wikipedia.org/wiki/Psychology",
 			"https://en.wikipedia.org/wiki/Stock_market",
+
+			"https://en.wikipedia.org/wiki/History",
+			"https://en.wikipedia.org/wiki/Art",
+			"https://en.wikipedia.org/wiki/Music",
+			"https://en.wikipedia.org/wiki/Religion",
+			"https://en.wikipedia.org/wiki/Law",
+
+			"https://en.wikipedia.org/wiki/Medicine",
+			"https://en.wikipedia.org/wiki/Engineering",
+			"https://en.wikipedia.org/wiki/Geography",
+			"https://en.wikipedia.org/wiki/Computer_engineering",
+			"https://en.wikipedia.org/wiki/Artificial_intelligence",
+			"https://en.wikipedia.org/wiki/Statistics",
+
+			"https://en.wikipedia.org/wiki/Film",
+			"https://en.wikipedia.org/wiki/Theatre",
+			"https://en.wikipedia.org/wiki/Architecture",
+			"https://en.wikipedia.org/wiki/Photography",
+
+			"https://en.wikipedia.org/wiki/Internet",
+			"https://en.wikipedia.org/wiki/Information_technology",
+
+			"https://en.wikipedia.org/wiki/Space_exploration",
+			"https://en.wikipedia.org/wiki/Mathematical_model",
+			"https://en.wikipedia.org/wiki/Entrepreneurship",
 		},
 		MaxDepth:    1,
 		JobsBuffer:  10000,

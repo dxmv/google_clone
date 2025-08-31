@@ -45,8 +45,8 @@
 
 # 31.08.2025
 - [x] Error page
-- [ ] Loading page
-- [ ] Crawl 50-100k pages
+- [x] Loading page
+- [x] Crawl 50-100k pages
 - [ ] Index those pages
 - [ ] Top query n‑grams in a Redis trie (<5 ms)
 

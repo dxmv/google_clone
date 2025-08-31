@@ -35,7 +35,7 @@ func fetch(url string) ([]byte, error) {
 }
 
 func handleHref(href string) (string, error) {
-	if strings.Contains(href, "Special:") || strings.Contains(href, "File:") || strings.Contains(href, "User:") || strings.Contains(href, "Help:") || strings.Contains(href, "Portal:") || strings.Contains(href, "Wikipedia:") || strings.Contains(href, "Template_talk:") || strings.Contains(href, "User_talk:") || strings.Contains(href, "Talk:") || strings.Contains(href, "Category:") || strings.Contains(href, "Template:") {
+	if strings.Contains(href, "Special:") || strings.Contains(href, "File:") || strings.Contains(href, "User:") || strings.Contains(href, "Help:") || strings.Contains(href, "Portal:") || strings.Contains(href, "Wikipedia:") || strings.Contains(href, "Template_talk:") || strings.Contains(href, "User_talk:") || strings.Contains(href, "Talk:") || strings.Contains(href, "Category:") || strings.Contains(href, "Template:") || strings.Contains(href, ":") {
 		return "", errors.New("href is a special page")
 	}
 	if strings.HasPrefix(href, "#") {
