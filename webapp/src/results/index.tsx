@@ -15,70 +15,7 @@ interface FinalResults {
 function index() {
   const [searchParams] = useSearchParams()
   const [results, setResults] = useState<FinalResults>({results: [
-    {
-      doc: {
-        hash: '1',
-        url: 'https://www.google.com',
-        title: 'Google',
-        score: 1,
-        images: ['https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'],
-      },
-    },
-    {
-      doc: {
-        hash: '1',
-        url: 'https://www.google.com',
-        title: 'Google',
-        score: 1,
-        images: ['https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'],
-      },
-    },
-    {
-      doc: {
-        hash: '1',
-        url: 'https://www.google.com',
-        title: 'Google',
-        score: 1,
-        images: ['https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'],
-      },
-    },
-    {
-      doc: {
-        hash: '1',
-        url: 'https://www.google.com',
-        title: 'Google',
-        score: 1,
-        images: ['https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'],
-      },
-    },
-    {
-      doc: {
-        hash: '1',
-        url: 'https://www.google.com',
-        title: 'Google',
-        score: 1,
-        images: ['https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'],
-      },
-    },
-    {
-      doc: {
-        hash: '1',
-        url: 'https://www.google.com',
-        title: 'Google',
-        score: 1,
-        images: ['https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'],
-      },
-    },
-    {
-      doc: {
-        hash: '1',
-        url: 'https://www.google.com',
-        title: 'Google',
-        score: 1,
-        images: ['https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'],
-      },
-    },
-  ], count: 100})
+  ], count: 0})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const query: string = searchParams.get('query') || ''

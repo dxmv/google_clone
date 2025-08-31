@@ -14,7 +14,7 @@ import (
 )
 
 func NewMinoMongoCorpus() *MinoMongoCorpus {
-	minio, err := newMinioConnection()
+	minio, err := newR2Client()
 	if err != nil {
 		log.Panic("Could not connect to minio", err)
 	}

@@ -59,21 +59,6 @@ func NewConfig() *Config {
 			"https://en.wikipedia.org/wiki/Medicine",
 			"https://en.wikipedia.org/wiki/Engineering",
 			"https://en.wikipedia.org/wiki/Geography",
-			"https://en.wikipedia.org/wiki/Computer_engineering",
-			"https://en.wikipedia.org/wiki/Artificial_intelligence",
-			"https://en.wikipedia.org/wiki/Statistics",
-
-			"https://en.wikipedia.org/wiki/Film",
-			"https://en.wikipedia.org/wiki/Theatre",
-			"https://en.wikipedia.org/wiki/Architecture",
-			"https://en.wikipedia.org/wiki/Photography",
-
-			"https://en.wikipedia.org/wiki/Internet",
-			"https://en.wikipedia.org/wiki/Information_technology",
-
-			"https://en.wikipedia.org/wiki/Space_exploration",
-			"https://en.wikipedia.org/wiki/Mathematical_model",
-			"https://en.wikipedia.org/wiki/Entrepreneurship",
 		},
 		MaxDepth:    1,
 		JobsBuffer:  10000,

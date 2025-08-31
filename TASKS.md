@@ -48,11 +48,14 @@
 - [x] Loading page
 - [x] Crawl 50-100k pages
 - [ ] Index those pages
+- [ ] Check if search still works
 - [ ] Top query n‑grams in a Redis trie (<5 ms)
 
 # 01.09.2025
 - [ ] Image page
 - [ ] Dockerize everything
+
+# 02.09.2025
 - [ ] Write a good readme
 - [ ] Record 60sec demo video
 - [ ] Add it to readme
