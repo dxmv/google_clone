@@ -47,8 +47,8 @@
 - [x] Error page
 - [x] Loading page
 - [x] Crawl 50-100k pages
-- [ ] Index those pages
-- [ ] Check if search still works
+- [x] Index those pages
+- [x] Check if search still works
 - [ ] Top query n‑grams in a Redis trie (<5 ms)
 
 # 01.09.2025

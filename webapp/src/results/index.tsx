@@ -10,12 +10,13 @@ const API_URL = import.meta.env.VITE_QUERY_API_URL || 'https://localhost:8000'
 interface FinalResults {
   results: SearchResult[];
   count: number;
+  suggestion: string | null;
 }
 
 function index() {
   const [searchParams] = useSearchParams()
   const [results, setResults] = useState<FinalResults>({results: [
-  ], count: 0})
+  ], count: 0, suggestion: null})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const query: string = searchParams.get('query') || ''
@@ -45,7 +46,7 @@ function index() {
                 
                 const data = await res.json()
                 console.log(data)
-                setResults({results: data.results, count: data.total})
+                setResults({results: data.results, count: data.total, suggestion: data.suggestion})
                 setLoading(false)
                 setError(null)
     } catch (err) {
@@ -64,7 +65,7 @@ function index() {
         <Error error={error}/>
       ) : (
         <>
-          <SearchResults results={results.results} currentPage={page} totalPages={Math.ceil(results.count / count)} />
+          <SearchResults results={results.results} currentPage={page} totalPages={Math.ceil(results.count / count)} suggestion={results.suggestion} />
         </>
       )}
     </>

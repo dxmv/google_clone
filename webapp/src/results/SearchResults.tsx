@@ -8,7 +8,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router'
 
 type Tab = 'All' | 'Images'
 
-function SearchResults({results, currentPage, totalPages}: {results: SearchResult[], currentPage: number, totalPages: number}) {
+function SearchResults({results, currentPage, totalPages, suggestion}: {results: SearchResult[], currentPage: number, totalPages: number, suggestion: string | null}) {
   const [tab, setTab] = useState<Tab>('All')
   const navigate = useNavigate()
   const searchParams = useSearchParams()
@@ -29,6 +29,7 @@ function SearchResults({results, currentPage, totalPages}: {results: SearchResul
       </div>
       {/* Results */}
       <div className="px-44 py-8 flex flex-col items-start justify-start gap-4 overflow-x-hidden">
+        {suggestion && <div className="italic mb-4 text-black">Did you mean:<a className="font-bold text-[#1A54CB] hover:cursor-pointer hover:underline" onClick={() => navigate(`/q?query=${suggestion}&page=1&count=${count}`)}>{suggestion}</a>?</div>}
         {results.map((result) => (
           <ResultLink key={result.doc.hash} result={result as SearchResultType} />
         ))}
