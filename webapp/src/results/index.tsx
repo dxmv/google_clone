@@ -56,6 +56,7 @@ function index() {
     }
     fetchResults()
   }, [query, page, count])
+  
 
   return (
     <>

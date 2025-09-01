@@ -6,7 +6,8 @@ from symspellpy import SymSpell, Verbosity
 import uvicorn
 import grpc
 from pb import search_pb2_grpc, search_pb2
-from redis_worker import enqueue_query
+from redis_worker import enqueue_query, suggest as suggest_from_worker
+
 
 app = FastAPI()
 
@@ -95,6 +96,11 @@ async def search(request: SearchRequest):
     print("Results: ", len(results))
     return {"results": results, "total": len(response.results), "suggestion": suggestion}
     
+
+@app.get("/api/suggest")
+async def suggest(q: str):
+    return suggest_from_worker(q)
+
 if __name__ == "__main__":
     channel = grpc.insecure_channel("localhost:50051")
     stub = search_pb2_grpc.SearchStub(channel)

@@ -8,6 +8,8 @@ type FormData = {
   query: string;
 }
 
+const API_URL = import.meta.env.VITE_QUERY_API_URL || 'https://localhost:8000'
+
 
 function App() {
   const navigate = useNavigate()
@@ -17,6 +19,12 @@ function App() {
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fetchSuggestions = async (query: string) => {
+      const res = await fetch(`${API_URL}/api/suggest?q=${query}`)
+      const data = await res.json()
+      console.log(data)
+    }
+    fetchSuggestions(e.target.value)
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 

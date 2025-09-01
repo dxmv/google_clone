@@ -1,4 +1,5 @@
 import redis
+import time
 
 r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
@@ -20,10 +21,10 @@ def dequeue_query()->str:
 
 def generate_ngrams(tokens: list[str]):
         '''
-        Generate n-grams from a query for n=2,3
+        Generate n-grams from a query for n=1,2,3
         '''
         ngrams = []
-        for n in [2,3]:
+        for n in [1,2,3]:
                 for i in range(len(tokens) - n + 1):
                         ngram = " ".join(tokens[i:i+n])
                         ngrams.append(ngram)
@@ -39,17 +40,17 @@ def process_dequeued_query(query: str):
         '''
         Process a query
         '''
-        print(f"Processing query: \"{query}\"\n")
+        print(f"-----------------\nProcessing query: \"{query}\"")
         tokenized_query = tokenize(query)
         ngrams = generate_ngrams(tokenized_query)
-        print(f"Done generating n-grams\n")
+        print(f"Done generating n-grams for query: \"{query}\"")
         # fill redis sorted set with ngrams
         for ngram in ngrams:
                 # increment the count of the ngram
                 r.zincrby(SORTED_SET_NAME, 1, ngram)
                 # for ZRANGEBYLEX
                 r.zadd(LEX_SET_NAME, {ngram: 0})
-        print(f"Done processing query \"{query}\"")
+        print(f"Done processing query \"{query}\"\n-----------------")
 
 def suggest(prefix: str, limit: int = 10, candidate_cap: int = 200) -> list[str]:
         '''
@@ -82,11 +83,24 @@ def main():
         r.delete(QUEUE_NAME)
         r.delete(SORTED_SET_NAME)
         r.delete(LEX_SET_NAME)
+        # seed the queue with some queries
+        enqueue_query("mathematics")
+        enqueue_query("math")
+        enqueue_query("maths")
+        enqueue_query("mathematics")
+        enqueue_query("investing")
+        enqueue_query("invest")
+        enqueue_query("investing in stocks")
+        enqueue_query("investing in stocks and bonds")
+        enqueue_query("investing in stocks and bonds and etfs")
+        enqueue_query("investing in stocks and bonds and etfs and mutual funds")
+        enqueue_query("invest")
         # --- drain the queue (no blocking) ---
         while True:
                 q = dequeue_query()
                 if not q:
-                        break
+                        time.sleep(1)
+                        continue
                 process_dequeued_query(q)
 
 

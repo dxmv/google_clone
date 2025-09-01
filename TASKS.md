@@ -52,17 +52,18 @@
 
 # 01.09.2025
 - [x] remove more duplicates from mongo and index everything
-- [ ] Top query n‑grams in a Redis trie 
+- [x] Top query n‑grams in redis 
 - [x] Image page
 
 # 02.09.2025
-- [ ] Dockerize everything
+- [ ] Display the redis suggest on frontend
 - [ ] Bugs
         - [ ] Display first paragraph
         - [ ] Page count on the frontend
         - [ ] Search bar in results
         - [ ] I'm felling lucky functionality
         - [ ] Loading screen not showing
+- [ ] Dockerize everything
 
 # 03.09.2025
 - [ ] Write a good readme

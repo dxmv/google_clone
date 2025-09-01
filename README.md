@@ -137,7 +137,8 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Implement the full design
 
 2. **Autocomplete**
-   - [ ] Top query n‑grams in a Redis trie (<5 ms).
+   - [x] Top query n‑grams in redis
+   - [ ] Display the redis suggest on frontend
 
 3. **Spell checking**
    - [x] 'Did you mean' text for spell fixing
