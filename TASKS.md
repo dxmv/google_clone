@@ -62,7 +62,9 @@
         - [ ] Page count on the frontend
         - [ ] Search bar in results
         - [ ] I'm felling lucky functionality
-        - [ ] Remove positioons in indexer and index again
+        - [ ] Loading screen not showing
+
+# 03.09.2025
 - [ ] Write a good readme
 - [ ] Record 60sec demo video and add it to readme
 - [ ] Modify CV bullets for this project

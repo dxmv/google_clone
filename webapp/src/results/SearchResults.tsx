@@ -29,7 +29,7 @@ function SearchResults({results, currentPage, totalPages, suggestion}: {results:
       {/* Results */}
       {tab === 'All' ? (
         <AllResults results={results} currentPage={currentPage} totalPages={totalPages} suggestion={suggestion} count={count} />
-      ) : <ImagesResults results={results}  suggestion={suggestion} />}
+      ) : <ImagesResults count={0} results={results}  suggestion={suggestion} />}
     </Layout>
   )
 }
