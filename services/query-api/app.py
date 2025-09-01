@@ -6,6 +6,7 @@ from symspellpy import SymSpell, Verbosity
 import uvicorn
 import grpc
 from pb import search_pb2_grpc, search_pb2
+from redis_worker import enqueue_query
 
 app = FastAPI()
 
@@ -34,22 +35,6 @@ class SearchRequest(BaseModel):
     page: int = 1
     count: int = 24
 
-def diff_cost(a: str, b: str, max_distance: int) -> int:
-    """Small edit-distance (Levenshtein) for short strings."""
-    if a == b: return 0
-    if not a: return len(b)
-    if not b: return len(a)
-    prev = list(range(len(b)+1))
-    for i, ca in enumerate(a, 1):
-        cur = [i]
-        for j, cb in enumerate(b, 1):
-            cur.append(min(cur[-1]+1, prev[j]+1, prev[j-1] + (ca != cb)))
-
-        # early exit if the distance is already too big
-        if min(cur) > max_distance:
-            return max_distance + 1
-        prev = cur
-    return prev[-1]
 
 def simple_suggestion(q: str, threshold: int = 2) -> str | None:
     # quick guards to avoid noisy suggestions
@@ -77,11 +62,15 @@ async def search(request: SearchRequest):
     page = request.page
     count = request.count 
 
+    # enqueue query to redis queue
+    enqueue_query(query)
 
-
+    # get resullts from search service
     response = stub.SearchQuery(search_pb2.SearchRequest(query=query, page=page, count=count))
     print("Results: ", len(response.results))
     suggestion = simple_suggestion(query)
+
+    # return results
     if not response or len(response.results) == 0:
         return {"results": [], "total": 0, "suggestion": suggestion}
     
