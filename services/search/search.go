@@ -18,8 +18,8 @@ type SearchResult struct {
 }
 
 // BM25 parameters
-var K = 1.2
-var B = 0.75
+var K = 2.0
+var B = 0.9
 
 type Job struct {
 	Posting shared.Posting

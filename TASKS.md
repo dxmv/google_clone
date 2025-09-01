@@ -49,14 +49,20 @@
 - [x] Crawl 50-100k pages
 - [x] Index those pages
 - [x] Check if search still works
-- [ ] Top query n‑grams in a Redis trie (<5 ms)
 
 # 01.09.2025
-- [ ] Image page
-- [ ] Dockerize everything
+- [x] remove more duplicates from mongo and index everything
+- [ ] Top query n‑grams in a Redis trie 
+- [x] Image page
 
 # 02.09.2025
+- [ ] Dockerize everything
+- [ ] Bugs
+        - [ ] Display first paragraph
+        - [ ] Page count on the frontend
+        - [ ] Search bar in results
+        - [ ] I'm felling lucky functionality
+        - [ ] Remove positioons in indexer and index again
 - [ ] Write a good readme
-- [ ] Record 60sec demo video
-- [ ] Add it to readme
+- [ ] Record 60sec demo video and add it to readme
 - [ ] Modify CV bullets for this project

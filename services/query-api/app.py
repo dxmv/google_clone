@@ -94,6 +94,7 @@ async def search(request: SearchRequest):
                 "depth": result.Doc.depth,
                 "title": result.Doc.title,
                 "hash": result.Doc.hash,
+                "images": list(result.Doc.images),
             },
             "score": result.Score,
             "term_count": result.TermCount
