@@ -1,11 +1,10 @@
 import { useSearchParams } from 'react-router'
 import { useEffect, useState } from 'react'
 import type { SearchResult } from '../types'
-import Loading from './Loading'
+import Loading from './loading'
 import Error from './error'
 import SearchResults from './SearchResults'
-        
-const API_URL = import.meta.env.VITE_QUERY_API_URL || 'https://localhost:8000'
+import { searchApi } from '../api/searchApi'
 
 interface FinalResults {
   results: SearchResult[];
@@ -26,29 +25,10 @@ function index() {
   useEffect(() => {
     const fetchResults = async () => {
         try {
-                if (query === '') {
-                        setError('No query')
-                        setLoading(false)
-                        return
-                }
-                const res = await fetch(`${API_URL}/api/search`, {
-                        headers: {
-                                'Content-Type': 'application/json',
-                        },
-                        method: 'POST',
-                        body: JSON.stringify({ query, page, count }),
-                });
-                
-                if (!res.ok) {
-                  alert('Error: ' + res.statusText)
-                  return
-                }
-                
-                const data = await res.json()
-                console.log(data)
-                setResults({results: data.results, count: data.total, suggestion: data.suggestion})
-                setLoading(false)
-                setError(null)
+          const data = await searchApi(query, page, count)
+          setResults({results: data.results, count: data.total, suggestion: data.suggestion})
+          setLoading(false)
+          setError(null)
     } catch (err) {
         setError(err && typeof err === 'object' && 'message' in err ? (err as Error).message : 'An unknown error occurred')
         setLoading(false)

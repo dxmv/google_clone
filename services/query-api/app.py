@@ -98,8 +98,8 @@ async def search(request: SearchRequest):
     
 
 @app.get("/api/suggest")
-async def suggest(q: str):
-    return suggest_from_worker(q)
+async def suggest(prefix: str):
+    return suggest_from_worker(prefix)
 
 if __name__ == "__main__":
     channel = grpc.insecure_channel("localhost:50051")

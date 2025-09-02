@@ -56,7 +56,7 @@
 - [x] Image page
 
 # 02.09.2025
-- [ ] Make frontend more modular
+- [x] Make frontend more modular
 - [ ] Display redis suggest on frontend
 - [ ] Bugs
         - [x] Search bar in results
