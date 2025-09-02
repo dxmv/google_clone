@@ -2,13 +2,14 @@ import { useState } from "react"
 import { useNavigate } from "react-router"
 import Button from "./components/button";
 import Layout from "./components/layout/layout";
+import SearchBar from "./components/search-bar";
+import { PAGE_LIMIT } from "./utils/constants";
 
 // Define the form data type
 type FormData = {
   query: string;
 }
 
-const API_URL = import.meta.env.VITE_QUERY_API_URL || 'https://localhost:8000'
 
 
 function App() {
@@ -19,19 +20,13 @@ function App() {
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fetchSuggestions = async (query: string) => {
-      const res = await fetch(`${API_URL}/api/suggest?q=${query}`)
-      const data = await res.json()
-      console.log(data)
-    }
-    fetchSuggestions(e.target.value)
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    navigate(`/q?query=${formData.query}&page=1&count=24`)
+    navigate(`/q?query=${formData.query}&page=1&count=${PAGE_LIMIT}`)
   }
 
   return (
@@ -41,7 +36,7 @@ function App() {
       >
         <img src="/logo.png" alt="Logo" className="w-[300px]" />
         <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center gap-4 mt-4">
-            <input type="text" className="min-w-[600px] py-1 px-2" name="query" value={formData.query} onChange={handleChange} />
+            <SearchBar className="min-w-[600px] py-1 px-2" handleChange={handleChange} value={formData.query} />
             <div className="flex flex-row items-center justify-center gap-4 mt-4">
               <Button className="min-w-[150px] py-1">Search</Button>
               <Button className="min-w-[150px] py-1">I'm Feeling Lucky</Button>

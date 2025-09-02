@@ -1,6 +1,6 @@
-const Button = ({ children, className }: { children: React.ReactNode, className?: string }) => {
+const Button = ({ children, className, onClick }: { children: React.ReactNode, className?: string, onClick?: () => void }) => {
     return (
-        <button className={className}>
+        <button className={className} onClick={onClick}>
             {children}
         </button>
     )

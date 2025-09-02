@@ -1,10 +1,10 @@
 import type { SearchResult } from '../types'
 import Layout from '../components/layout/layout'
-import Button from '../components/button'
 import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
 import AllResults from './AllResults'
 import ImagesResults from './ImagesResults'
+import Header from './header'
 
 type Tab = 'All' | 'Images'
 
@@ -15,12 +15,7 @@ function SearchResults({results, currentPage, totalPages, suggestion}: {results:
   const count = searchParams[0].get('count')
   return (
     <Layout>
-      {/* Header */}
-      <header className="flex flex-row items-center justify-start p-8">
-        <Link to="/"><img src="/logo.png" alt="Logo" className="w-28 mr-8" /></Link>
-        <input type="text" className="w-[400px] px-2 mr-2" />
-        <Button className="min-w-[100px]">Search</Button>
-      </header>
+      <Header initialQuery={query || ''} />
       {/* Tabs */}
       <div className="flex flex-row items-center justify-start border-b-2 border-[#676767] px-44">
         <TabButton tab="All" setTab={setTab} activeTab={tab} />

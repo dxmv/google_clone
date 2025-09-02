@@ -56,16 +56,20 @@
 - [x] Image page
 
 # 02.09.2025
-- [ ] Display the redis suggest on frontend
+- [ ] Make frontend more modular
+- [ ] Display redis suggest on frontend
 - [ ] Bugs
-        - [ ] Display first paragraph
-        - [ ] Page count on the frontend
-        - [ ] Search bar in results
-        - [ ] I'm felling lucky functionality
+        - [x] Search bar in results
         - [ ] Loading screen not showing
+        - [ ] Page count on the frontend
+        - [ ] Display first paragraph
+        - [ ] Remove positions from indexer and search, then reindex
 - [ ] Dockerize everything
 
 # 03.09.2025
-- [ ] Write a good readme
+- [ ] I'm felling lucky functionality
+- [ ] Write a good general readme
 - [ ] Record 60sec demo video and add it to readme
+- [ ] Draw the architecture and add it to the repo
+- [ ] Write a readme for each individual service
 - [ ] Modify CV bullets for this project
