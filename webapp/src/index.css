@@ -84,3 +84,15 @@ input[type="text"]:focus{
     opacity: 1;
   }
 }
+
+.suggestion{
+  border: 1px solid #7A797A;
+  border-radius: 0;
+  background: white;
+  box-shadow: inset -2px -2px 4px 0 rgba(0, 0, 0, 0.6);
+}
+
+.suggestion:hover{
+  background: #1A54CB;
+  color: white;
+}
