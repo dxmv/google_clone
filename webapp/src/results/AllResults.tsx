@@ -2,7 +2,7 @@ import ResultLink from "../components/result-link";
 import type { SearchResult as SearchResultType } from "../types";
 import { useNavigate, useSearchParams } from "react-router";
 
-const AllResults = ({results, currentPage, totalPages, suggestion, count}: {results: SearchResultType[], currentPage: number, totalPages: number, suggestion: string | null, count: string | null}) => {
+const AllResults = ({results, currentPage, totalPages, suggestion, count  }: {results: SearchResultType[], currentPage: number, totalPages: number, suggestion: string | null, count: string | null}) => {
   const navigate = useNavigate()
   const searchParams = useSearchParams()
   const query = searchParams[0].get('query')

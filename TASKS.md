@@ -58,16 +58,16 @@
 # 02.09.2025
 - [x] Make frontend more modular
 - [x] Display redis suggest on frontend
-- [ ] Bugs
+- [x] Bugs
         - [x] Search bar in results
         - [x] Loading screen not showing
         - [x] Protobuff first paragraph and total results 
         - [x] Page count on the frontend
         - [x] Display first paragraph
-        - [ ] Fix heap stuff
-- [ ] Return query time
+- [x] Return query time
 
 # 03.09.2025
+- [ ] Fix heap stuff in search
 - [ ] Fix pagination bar tab
 - [ ] Design better suggestions bar
 - [ ] Design where to display query time

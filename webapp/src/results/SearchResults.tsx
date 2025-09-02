@@ -8,7 +8,7 @@ import Header from './header'
 
 type Tab = 'All' | 'Images'
 
-function SearchResults({results, currentPage, totalPages, suggestion}: {results: SearchResult[], currentPage: number, totalPages: number, suggestion: string | null}) {
+function SearchResults({results, currentPage, totalPages, suggestion, query_time}: {results: SearchResult[], currentPage: number, totalPages: number, suggestion: string | null, query_time: number}) {
   const [tab, setTab] = useState<Tab>('All')
   const searchParams = useSearchParams()
   const query = searchParams[0].get('query')
@@ -21,9 +21,10 @@ function SearchResults({results, currentPage, totalPages, suggestion}: {results:
         <TabButton tab="All" setTab={setTab} activeTab={tab} />
         <TabButton tab="Images" setTab={setTab} activeTab={tab} />
       </div>
+      <h1 className="text-2xl font-bold px-44">Query time: {query_time} seconds</h1>
       {/* Results */}
       {tab === 'All' ? (
-        <AllResults results={results} currentPage={currentPage} totalPages={totalPages} suggestion={suggestion} count={count} />
+        <AllResults results={results} currentPage={currentPage} totalPages={totalPages} suggestion={suggestion} count={count} query_time={query_time} />
       ) : <ImagesResults count={0} results={results}  suggestion={suggestion} />}
     </Layout>
   )

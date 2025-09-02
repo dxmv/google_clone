@@ -7,7 +7,7 @@ import uvicorn
 import grpc
 from pb import search_pb2_grpc, search_pb2
 from redis_worker import enqueue_query, suggest as suggest_from_worker
-
+import time
 
 app = FastAPI()
 
@@ -59,6 +59,7 @@ def simple_suggestion(q: str, threshold: int = 2) -> str | None:
 
 @app.post("/api/search")
 async def search(request: SearchRequest):
+    start_time = time.time()
     query = request.query
     page = request.page
     count = request.count 
@@ -92,10 +93,12 @@ async def search(request: SearchRequest):
         }
         results.append(result_dict)
     
+    end_time = time.time()
+    print("Query time: ", end_time - start_time)
     print("Suggestion: ", suggestion)
     print("Query: ", query)
     print("Results: ", len(results))
-    return {"results": results, "total": response.total, "suggestion": suggestion}
+    return {"results": results, "total": response.total, "suggestion": suggestion, "query_time": round(end_time - start_time, 4)}
     
 
 @app.get("/api/suggest")

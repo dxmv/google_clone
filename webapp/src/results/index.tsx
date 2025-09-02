@@ -11,7 +11,7 @@ import { searchApi } from '../api/searchApi'
 function index() {
   const [searchParams] = useSearchParams()
   const [results, setResults] = useState<FinalResult>({results: [
-  ], total: 0, suggestion: null})
+  ], total: 0, suggestion: null, query_time: 0})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const query: string = searchParams.get('query') || ''
@@ -22,7 +22,7 @@ function index() {
     const fetchResults = async () => {
         try {
           const data = await searchApi(query, page, count)
-          setResults({results: data.results, total: data.total, suggestion: data.suggestion})
+          setResults({results: data.results, total: data.total, suggestion: data.suggestion, query_time: data.query_time})
           setLoading(false)
           setError(null)
     } catch (err) {
@@ -42,7 +42,7 @@ function index() {
         <Error error={error}/>
       ) : (
         <>
-          <SearchResults results={results.results} currentPage={page} totalPages={Math.ceil(results.total / count)} suggestion={results.suggestion} />
+          <SearchResults results={results.results} currentPage={page} totalPages={Math.ceil(results.total / count)} suggestion={results.suggestion} query_time={results.query_time} />
         </>
       )}
     </>
