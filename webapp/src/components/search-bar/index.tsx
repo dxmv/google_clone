@@ -17,13 +17,13 @@ const SearchBar = ({className, resultClassName, value, handleChange}: {className
   return (
     <div className="relative">
     <input type="text" className={className} name="query" value={value} onChange={onChange} />
-    {suggestions.length > 0 && (
+    {/* {suggestions.length > 0 && (
       <div className={`absolute top-[100%] left-0 w-full bg-white`}>
         {suggestions.map((suggestion) => (
           <div  key={suggestion} className={`suggestion hover:cursor-pointer hover:bg-gray-100 border-b border-[#676767] ${resultClassName}`}>{suggestion}</div>
         ))}
       </div>
-    )}
+    )} */}
     </div>
   )
 }

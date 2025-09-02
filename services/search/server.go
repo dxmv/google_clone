@@ -29,7 +29,7 @@ func NewSearchServer(storage *shared.Storage, avgDocLength float64, collectionSi
 
 func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
 	// Use the more efficient paginated search function
-	results := searchPaginated(req.Query, s.storage, s.avgDocLength, s.collectionSize, s.cache, req.Page, req.Count)
+	results, totalResults := searchPaginated(req.Query, s.storage, s.avgDocLength, s.collectionSize, s.cache, req.Page, req.Count)
 	docIDs := make([]string, len(results))
 	for i, result := range results {
 		docIDs[i] = result.Hash
@@ -44,19 +44,19 @@ func (s *searchServer) SearchQuery(ctx context.Context, req *pb.SearchRequest) (
 		docMetadata := docs[i]
 		finalResults[i] = &pb.SearchResult{
 			Doc: &pb.DocMetadata{
-				Url:    docMetadata.URL,
-				Depth:  int32(docMetadata.Depth),
-				Title:  docMetadata.Title,
-				Hash:   docMetadata.Hash,
-				Images: docMetadata.Images,
+				Url:            docMetadata.URL,
+				FirstParagraph: docMetadata.FirstParagraph,
+				Depth:          int32(docMetadata.Depth),
+				Title:          docMetadata.Title,
+				Hash:           docMetadata.Hash,
+				Images:         docMetadata.Images,
 			},
 			Score:     result.Score,
 			TermCount: int32(result.CountTerm),
 		}
 	}
-	fmt.Println("Final results: ", finalResults)
 
-	return &pb.SearchResponse{Results: finalResults}, nil
+	return &pb.SearchResponse{Results: finalResults, Total: totalResults}, nil
 }
 
 func startServer(storage *shared.Storage) {

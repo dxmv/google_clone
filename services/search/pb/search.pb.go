@@ -84,6 +84,7 @@ func (x *SearchRequest) GetCount() int32 {
 type SearchResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Results       []*SearchResult        `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -123,6 +124,13 @@ func (x *SearchResponse) GetResults() []*SearchResult {
 		return x.Results
 	}
 	return nil
+}
+
+func (x *SearchResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
 }
 
 type SearchResult struct {
@@ -186,14 +194,15 @@ func (x *SearchResult) GetTermCount() int32 {
 }
 
 type DocMetadata struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
-	Depth         int32                  `protobuf:"varint,2,opt,name=depth,proto3" json:"depth,omitempty"`
-	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	Hash          string                 `protobuf:"bytes,4,opt,name=hash,proto3" json:"hash,omitempty"`
-	Images        []string               `protobuf:"bytes,5,rep,name=images,proto3" json:"images,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Url            string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	Depth          int32                  `protobuf:"varint,2,opt,name=depth,proto3" json:"depth,omitempty"`
+	Title          string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Hash           string                 `protobuf:"bytes,4,opt,name=hash,proto3" json:"hash,omitempty"`
+	Images         []string               `protobuf:"bytes,5,rep,name=images,proto3" json:"images,omitempty"`
+	FirstParagraph string                 `protobuf:"bytes,6,opt,name=first_paragraph,json=firstParagraph,proto3" json:"first_paragraph,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *DocMetadata) Reset() {
@@ -261,6 +270,13 @@ func (x *DocMetadata) GetImages() []string {
 	return nil
 }
 
+func (x *DocMetadata) GetFirstParagraph() string {
+	if x != nil {
+		return x.FirstParagraph
+	}
+	return ""
+}
+
 var File_search_proto protoreflect.FileDescriptor
 
 const file_search_proto_rawDesc = "" +
@@ -269,19 +285,21 @@ const file_search_proto_rawDesc = "" +
 	"\rSearchRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12\x12\n" +
 	"\x04page\x18\x02 \x01(\x05R\x04page\x12\x14\n" +
-	"\x05count\x18\x03 \x01(\x05R\x05count\"@\n" +
+	"\x05count\x18\x03 \x01(\x05R\x05count\"V\n" +
 	"\x0eSearchResponse\x12.\n" +
-	"\aresults\x18\x01 \x03(\v2\x14.search.SearchResultR\aresults\"i\n" +
+	"\aresults\x18\x01 \x03(\v2\x14.search.SearchResultR\aresults\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"i\n" +
 	"\fSearchResult\x12%\n" +
 	"\x03Doc\x18\x01 \x01(\v2\x13.search.DocMetadataR\x03Doc\x12\x14\n" +
 	"\x05Score\x18\x02 \x01(\x01R\x05Score\x12\x1c\n" +
-	"\tTermCount\x18\x03 \x01(\x05R\tTermCount\"w\n" +
+	"\tTermCount\x18\x03 \x01(\x05R\tTermCount\"\xa0\x01\n" +
 	"\vDocMetadata\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12\x14\n" +
 	"\x05depth\x18\x02 \x01(\x05R\x05depth\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x12\x12\n" +
 	"\x04hash\x18\x04 \x01(\tR\x04hash\x12\x16\n" +
-	"\x06images\x18\x05 \x03(\tR\x06images2F\n" +
+	"\x06images\x18\x05 \x03(\tR\x06images\x12'\n" +
+	"\x0ffirst_paragraph\x18\x06 \x01(\tR\x0efirstParagraph2F\n" +
 	"\x06Search\x12<\n" +
 	"\vSearchQuery\x12\x15.search.SearchRequest\x1a\x16.search.SearchResponseB$Z\"google-clone/services/search/pb;pbb\x06proto3"
 

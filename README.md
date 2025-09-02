@@ -135,10 +135,11 @@ This repository is a from-scratch mini search engine designed to mirror the core
 1. **Better UI**
    - [x] Make a new figma design 
    - [x] Implement the full design
+   - [ ] Display query time
 
 2. **Autocomplete**
    - [x] Top query n‑grams in redis
-   - [ ] Display the redis suggest on frontend
+   - [x] Display the redis suggest on frontend
 
 3. **Spell checking**
    - [x] 'Did you mean' text for spell fixing

@@ -85,6 +85,7 @@ async def search(request: SearchRequest):
                 "title": result.Doc.title,
                 "hash": result.Doc.hash,
                 "images": list(result.Doc.images),
+                "first_paragraph": result.Doc.first_paragraph,
             },
             "score": result.Score,
             "term_count": result.TermCount
@@ -94,7 +95,7 @@ async def search(request: SearchRequest):
     print("Suggestion: ", suggestion)
     print("Query: ", query)
     print("Results: ", len(results))
-    return {"results": results, "total": len(response.results), "suggestion": suggestion}
+    return {"results": results, "total": response.total, "suggestion": suggestion}
     
 
 @app.get("/api/suggest")

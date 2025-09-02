@@ -13,7 +13,8 @@ message SearchRequest {
         int32 count = 3;
 }
 message SearchResponse {
-        repeated SearchResult results = 1; 
+        repeated SearchResult results = 1;
+        int64 total = 2;
 }
 
 message SearchResult {
@@ -28,4 +29,5 @@ message DocMetadata {
         string title  = 3;
         string hash   = 4;
         repeated string images = 5;
+        string first_paragraph = 6;
 }

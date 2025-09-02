@@ -57,17 +57,26 @@
 
 # 02.09.2025
 - [x] Make frontend more modular
-- [ ] Display redis suggest on frontend
+- [x] Display redis suggest on frontend
 - [ ] Bugs
         - [x] Search bar in results
-        - [ ] Loading screen not showing
+        - [x] Loading screen not showing
         - [ ] Page count on the frontend
+        - [x] Protobuff first paragraph and total results 
         - [ ] Display first paragraph
-        - [ ] Remove positions from indexer and search, then reindex
-- [ ] Dockerize everything
+        - [ ] Use total results for pagination
+        - [ ] Fix heap stuff
+- [ ] Return query time
 
 # 03.09.2025
+- [ ] Design better suggestions bar
+- [ ] Design where to display query time
+- [ ] Implement that suggestion bar
+- [ ] Display that query time
 - [ ] I'm felling lucky functionality
+- [ ] Dockerize everything
+
+# 04.09.2025
 - [ ] Write a good general readme
 - [ ] Record 60sec demo video and add it to readme
 - [ ] Draw the architecture and add it to the repo

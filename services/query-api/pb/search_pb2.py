@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0csearch.proto\x12\x06search\";\n\rSearchRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x0c\n\x04page\x18\x02 \x01(\x05\x12\r\n\x05\x63ount\x18\x03 \x01(\x05\"7\n\x0eSearchResponse\x12%\n\x07results\x18\x01 \x03(\x0b\x32\x14.search.SearchResult\"R\n\x0cSearchResult\x12 \n\x03\x44oc\x18\x01 \x01(\x0b\x32\x13.search.DocMetadata\x12\r\n\x05Score\x18\x02 \x01(\x01\x12\x11\n\tTermCount\x18\x03 \x01(\x05\"V\n\x0b\x44ocMetadata\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\r\n\x05\x64\x65pth\x18\x02 \x01(\x05\x12\r\n\x05title\x18\x03 \x01(\t\x12\x0c\n\x04hash\x18\x04 \x01(\t\x12\x0e\n\x06images\x18\x05 \x03(\t2F\n\x06Search\x12<\n\x0bSearchQuery\x12\x15.search.SearchRequest\x1a\x16.search.SearchResponseB$Z\"google-clone/services/search/pb;pbb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0csearch.proto\x12\x06search\";\n\rSearchRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x0c\n\x04page\x18\x02 \x01(\x05\x12\r\n\x05\x63ount\x18\x03 \x01(\x05\"F\n\x0eSearchResponse\x12%\n\x07results\x18\x01 \x03(\x0b\x32\x14.search.SearchResult\x12\r\n\x05total\x18\x02 \x01(\x03\"R\n\x0cSearchResult\x12 \n\x03\x44oc\x18\x01 \x01(\x0b\x32\x13.search.DocMetadata\x12\r\n\x05Score\x18\x02 \x01(\x01\x12\x11\n\tTermCount\x18\x03 \x01(\x05\"o\n\x0b\x44ocMetadata\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\r\n\x05\x64\x65pth\x18\x02 \x01(\x05\x12\r\n\x05title\x18\x03 \x01(\t\x12\x0c\n\x04hash\x18\x04 \x01(\t\x12\x0e\n\x06images\x18\x05 \x03(\t\x12\x17\n\x0f\x66irst_paragraph\x18\x06 \x01(\t2F\n\x06Search\x12<\n\x0bSearchQuery\x12\x15.search.SearchRequest\x1a\x16.search.SearchResponseB$Z\"google-clone/services/search/pb;pbb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,11 +35,11 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_SEARCHREQUEST']._serialized_start=24
   _globals['_SEARCHREQUEST']._serialized_end=83
   _globals['_SEARCHRESPONSE']._serialized_start=85
-  _globals['_SEARCHRESPONSE']._serialized_end=140
-  _globals['_SEARCHRESULT']._serialized_start=142
-  _globals['_SEARCHRESULT']._serialized_end=224
-  _globals['_DOCMETADATA']._serialized_start=226
-  _globals['_DOCMETADATA']._serialized_end=312
-  _globals['_SEARCH']._serialized_start=314
-  _globals['_SEARCH']._serialized_end=384
+  _globals['_SEARCHRESPONSE']._serialized_end=155
+  _globals['_SEARCHRESULT']._serialized_start=157
+  _globals['_SEARCHRESULT']._serialized_end=239
+  _globals['_DOCMETADATA']._serialized_start=241
+  _globals['_DOCMETADATA']._serialized_end=352
+  _globals['_SEARCH']._serialized_start=354
+  _globals['_SEARCH']._serialized_end=424
 # @@protoc_insertion_point(module_scope)

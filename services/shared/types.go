@@ -11,13 +11,14 @@ import (
 
 // DocMetadata represents the metadata of a document
 type DocMetadata struct {
-	URL           string
-	Depth         int
-	Title         string
-	Hash          string
-	Images        []string
-	ContentLength int
-	CrawledAt     time.Time
+	URL            string
+	Depth          int
+	Title          string
+	Hash           string
+	Images         []string
+	ContentLength  int
+	CrawledAt      time.Time
+	FirstParagraph string
 }
 
 // Posting represents a document's relevance for a term

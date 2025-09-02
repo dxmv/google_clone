@@ -16,7 +16,7 @@ function index() {
   const [searchParams] = useSearchParams()
   const [results, setResults] = useState<FinalResults>({results: [
   ], count: 0, suggestion: null})
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const query: string = searchParams.get('query') || ''
   const page: number = parseInt(searchParams.get('page') || '1')

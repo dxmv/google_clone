@@ -162,33 +162,20 @@ func search(query string, storage *shared.Storage, avgDocLength float64, collect
 
 // searchPaginated performs search query and returns only the requested page of results
 // More efficient for large result sets as it only sorts/returns what's needed
-func searchPaginated(query string, storage *shared.Storage, avgDocLength float64, collectionSize int64, cache *LRUCache[string, []SearchResult], page, count int32) []SearchResult {
-	// First check if we have the full results cached
-	fullResults, ok := cache.Get(query)
-	if ok {
-		// If cached, just slice and return the requested page
-		offset := (page - 1) * count
-		if offset >= int32(len(fullResults)) {
-			return []SearchResult{}
-		}
-		if offset+count > int32(len(fullResults)) {
-			return fullResults[offset:]
-		}
-		return fullResults[offset : offset+count]
-	}
-
-	// If not cached, perform full search and cache it
+func searchPaginated(query string, storage *shared.Storage, avgDocLength float64, collectionSize int64, cache *LRUCache[string, []SearchResult], page, count int32) ([]SearchResult, int64) {
+	// Perform full search
 	allResults := search(query, storage, avgDocLength, collectionSize, cache)
+	totalResults := int64(len(allResults))
 
 	// Return the requested page
 	offset := (page - 1) * count
 	if offset >= int32(len(allResults)) {
-		return []SearchResult{}
+		return []SearchResult{}, totalResults
 	}
 	if offset+count > int32(len(allResults)) {
-		return allResults[offset:]
+		return allResults[offset:], totalResults
 	}
-	return allResults[offset : offset+count]
+	return allResults[offset : offset+count], totalResults
 }
 
 func calculateTopBottom(posting shared.Posting, docLength uint32, avgDocLength float64) (float64, float64) {
