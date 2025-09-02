@@ -1,21 +1,17 @@
 import { useSearchParams } from 'react-router'
 import { useEffect, useState } from 'react'
-import type { SearchResult } from '../types'
+import type { FinalResult } from '../types'
 import Loading from './loading'
 import Error from './error'
 import SearchResults from './SearchResults'
 import { searchApi } from '../api/searchApi'
 
-interface FinalResults {
-  results: SearchResult[];
-  count: number;
-  suggestion: string | null;
-}
+
 
 function index() {
   const [searchParams] = useSearchParams()
-  const [results, setResults] = useState<FinalResults>({results: [
-  ], count: 0, suggestion: null})
+  const [results, setResults] = useState<FinalResult>({results: [
+  ], total: 0, suggestion: null})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const query: string = searchParams.get('query') || ''
@@ -26,7 +22,7 @@ function index() {
     const fetchResults = async () => {
         try {
           const data = await searchApi(query, page, count)
-          setResults({results: data.results, count: data.total, suggestion: data.suggestion})
+          setResults({results: data.results, total: data.total, suggestion: data.suggestion})
           setLoading(false)
           setError(null)
     } catch (err) {
@@ -46,7 +42,7 @@ function index() {
         <Error error={error}/>
       ) : (
         <>
-          <SearchResults results={results.results} currentPage={page} totalPages={Math.ceil(results.count / count)} suggestion={results.suggestion} />
+          <SearchResults results={results.results} currentPage={page} totalPages={Math.ceil(results.total / count)} suggestion={results.suggestion} />
         </>
       )}
     </>

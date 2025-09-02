@@ -1,5 +1,7 @@
 import type { SearchResult } from '../../types'
 
+const MAX_FIRST_PARAGRAPH_LENGTH = 20
+
 const ResultLink = ({result}: {result: SearchResult}) => {
   return (
     <div className="flex flex-col items-start justify-start gap-1 max-w-1/2">
@@ -14,7 +16,7 @@ const ResultLink = ({result}: {result: SearchResult}) => {
       </div>
       <div className="flex flex-col items-start justify-start gap-1">
         <h2 className="text-xl text-[#1A54CB] font-bold hover:cursor-pointer hover:underline">{result.doc.title}</h2>
-        <p className="text-md text-[#676767]">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <p className="text-md text-[#676767]">{result.doc.first_paragraph.split(" ").length > MAX_FIRST_PARAGRAPH_LENGTH ? result.doc.first_paragraph.split(" ").slice(0, MAX_FIRST_PARAGRAPH_LENGTH).join(" ") + '...' : result.doc.first_paragraph}</p>
       </div>
     </div>
   )

@@ -61,14 +61,14 @@
 - [ ] Bugs
         - [x] Search bar in results
         - [x] Loading screen not showing
-        - [ ] Page count on the frontend
         - [x] Protobuff first paragraph and total results 
-        - [ ] Display first paragraph
-        - [ ] Use total results for pagination
+        - [x] Page count on the frontend
+        - [x] Display first paragraph
         - [ ] Fix heap stuff
 - [ ] Return query time
 
 # 03.09.2025
+- [ ] Fix pagination bar tab
 - [ ] Design better suggestions bar
 - [ ] Design where to display query time
 - [ ] Implement that suggestion bar
