@@ -70,13 +70,14 @@
 - [ ] Fix heap stuff in search
 - [x] Fix pagination bar tab
 - [ ] Design better suggestions bar
-- [ ] Design where to display query time
+- [x] Design where to display query time
 - [ ] Implement that suggestion bar
-- [ ] Display that query time
+- [x] Display that query time
 - [ ] I'm felling lucky functionality
 - [ ] Dockerize everything
 
 # 04.09.2025
+- [ ] When a user clicks enter - search
 - [ ] Write a good general readme
 - [ ] Record 60sec demo video and add it to readme
 - [ ] Draw the architecture and add it to the repo
