@@ -108,16 +108,14 @@ func search(query string, storage *shared.Storage, avgDocLength float64, collect
 		}
 	}
 
-	// Use SearchHeap to sort results by score (max-heap)
-	searchHeap := &SearchHeap{}
-	heap.Init(searchHeap)
-
 	// convert map keys to slice for indexing
 	terms := make([]string, 0, len(queryTerms))
 	for term := range queryTerms {
 		terms = append(terms, term)
 	}
-	for _, result := range docMap {
+
+	// Apply position scoring to all results
+	for docID, result := range docMap {
 		// calculate position bonuses
 		if result.CountTerm >= 2 {
 			bonus := 0.0
@@ -143,18 +141,17 @@ func search(query string, storage *shared.Storage, avgDocLength float64, collect
 				}
 			}
 			result.Score += bonus
+			docMap[docID] = result // update the result in the map
 		}
-		heap.Push(searchHeap, result)
 	}
 
-	// Convert heap to sorted slice (highest scores first)
+	// Convert map to unsorted slice
 	results := make([]SearchResult, 0, len(docMap))
-	for searchHeap.Len() > 0 {
-		result := heap.Pop(searchHeap).(SearchResult)
+	for _, result := range docMap {
 		results = append(results, result)
 	}
 
-	// cache the result
+	// cache the unsorted results
 	cache.Put(query, results)
 
 	return results
@@ -163,19 +160,41 @@ func search(query string, storage *shared.Storage, avgDocLength float64, collect
 // searchPaginated performs search query and returns only the requested page of results
 // More efficient for large result sets as it only sorts/returns what's needed
 func searchPaginated(query string, storage *shared.Storage, avgDocLength float64, collectionSize int64, cache *LRUCache[string, []SearchResult], page, count int32) ([]SearchResult, int64) {
-	// Perform full search
+	// Get unsorted results from search
 	allResults := search(query, storage, avgDocLength, collectionSize, cache)
 	totalResults := int64(len(allResults))
 
+	// Calculate how many results we need (page * count)
+	neededResults := page * count
+	if neededResults > int32(len(allResults)) {
+		neededResults = int32(len(allResults))
+	}
+
+	// Use heap to get top neededResults
+	searchHeap := &SearchHeap{}
+	heap.Init(searchHeap)
+
+	// Add all results to heap
+	for _, result := range allResults {
+		heap.Push(searchHeap, result)
+	}
+
+	// Extract top neededResults from heap
+	sortedResults := make([]SearchResult, 0, neededResults)
+	for i := int32(0); i < neededResults && searchHeap.Len() > 0; i++ {
+		result := heap.Pop(searchHeap).(SearchResult)
+		sortedResults = append(sortedResults, result)
+	}
+
 	// Return the requested page
 	offset := (page - 1) * count
-	if offset >= int32(len(allResults)) {
+	if offset >= int32(len(sortedResults)) {
 		return []SearchResult{}, totalResults
 	}
-	if offset+count > int32(len(allResults)) {
-		return allResults[offset:], totalResults
+	if offset+count > int32(len(sortedResults)) {
+		return sortedResults[offset:], totalResults
 	}
-	return allResults[offset : offset+count], totalResults
+	return sortedResults[offset : offset+count], totalResults
 }
 
 func calculateTopBottom(posting shared.Posting, docLength uint32, avgDocLength float64) (float64, float64) {
