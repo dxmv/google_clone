@@ -88,11 +88,24 @@ input[type="text"]:focus{
 .suggestion{
   border: 1px solid #7A797A;
   border-radius: 0;
-  background: white;
-  box-shadow: inset -2px -2px 4px 0 rgba(0, 0, 0, 0.6);
+  box-shadow: inset -4px -4px 4px 0 rgba(0, 0, 0, 0.6);
+  background: linear-gradient(to bottom, #ffffff, #f0f0f0,#e4e3e3);
+
 }
 
-.suggestion:hover{
-  background: #1A54CB;
-  color: white;
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7A797A;
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

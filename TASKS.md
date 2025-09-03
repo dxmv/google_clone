@@ -69,8 +69,8 @@
 # 03.09.2025
 - [ ] Fix heap stuff in search
 - [x] Fix pagination bar tab
-- [ ] Design better suggestions bar
-- [ ] Implement that suggestion bar
+- [x] Design better suggestions bar
+- [x] Implement that suggestion bar
 - [x] Display that query time
 - [x] I'm felling lucky functionality
 - [ ] Dockerize everything

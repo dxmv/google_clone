@@ -19,7 +19,7 @@ const Header = ({initialQuery}: {initialQuery: string}) => {
         return (
                 <header className="flex flex-row items-center justify-start p-8">
                         <Link to="/"><img src="/logo.png" alt="Logo" className="w-28 mr-8" /></Link>
-                        <SearchBar className="w-[400px] px-2 mr-2" handleChange={handleChange} value={query} />
+                        <SearchBar className="w-[400px] px-2 mr-2" resultsBoxClassName="w-[400px]" resultClassName="w-[400px]" handleChange={handleChange} value={query} />
                         <Button className="min-w-[100px]" onClick={handleSubmit}>Search</Button>
                 </header>
         )

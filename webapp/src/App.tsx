@@ -51,7 +51,7 @@ function App() {
       >
         <img src="/logo.png" alt="Logo" className="w-[300px]" />
         <form onSubmit={(e)=>{e.preventDefault()}} className="flex flex-col items-center justify-center gap-4 mt-4">
-            <SearchBar className="min-w-[600px] py-1 px-2" handleChange={handleChange} value={formData.query} />
+            <SearchBar className="min-w-[600px] py-1 px-2" resultsBoxClassName="w-[600px]" resultClassName="w-[600px]" handleChange={handleChange} value={formData.query} />
             <div className="flex flex-row items-center justify-center gap-4 mt-4">
               <Button className="min-w-[150px] py-1" onClick={handleSubmit}>Search</Button>
               <Button className="min-w-[150px] py-1" onClick={handleFeelingLucky}>I'm Feeling Lucky</Button>
