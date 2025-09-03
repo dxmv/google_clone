@@ -25,7 +25,6 @@ function SearchResults({
   const searchParams = useSearchParams();
   const query = searchParams[0].get("query");
   const count = searchParams[0].get("count");
-  const navigate = useNavigate();
   return (
     <Layout>
       <Header initialQuery={query || ""} />

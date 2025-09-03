@@ -70,10 +70,9 @@
 - [ ] Fix heap stuff in search
 - [x] Fix pagination bar tab
 - [ ] Design better suggestions bar
-- [x] Design where to display query time
 - [ ] Implement that suggestion bar
 - [x] Display that query time
-- [ ] I'm felling lucky functionality
+- [x] I'm felling lucky functionality
 - [ ] Dockerize everything
 
 # 04.09.2025

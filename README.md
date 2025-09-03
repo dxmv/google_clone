@@ -135,7 +135,8 @@ This repository is a from-scratch mini search engine designed to mirror the core
 1. **Better UI**
    - [x] Make a new figma design 
    - [x] Implement the full design
-   - [ ] Display query time
+   - [x] Display query time
+   - [x] I'm feeling lucky
 
 2. **Autocomplete**
    - [x] Top query n‑grams in redis
