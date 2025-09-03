@@ -13,5 +13,6 @@ export interface FinalResult {
   results: SearchResult[];
   total: number;
   suggestion: string | null;
+  query_time: number;
 }
 

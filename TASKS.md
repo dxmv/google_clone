@@ -68,7 +68,7 @@
 
 # 03.09.2025
 - [ ] Fix heap stuff in search
-- [ ] Fix pagination bar tab
+- [x] Fix pagination bar tab
 - [ ] Design better suggestions bar
 - [ ] Design where to display query time
 - [ ] Implement that suggestion bar
