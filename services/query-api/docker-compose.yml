@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   redis:
     image: redis:7-alpine
@@ -9,17 +7,30 @@ services:
     volumes:
       - redis_data:/data
 
+  search:
+    build:
+      context: ..
+      dockerfile: search/Dockerfile
+    ports:
+      - "50051:50051"
+    volumes:
+      - search_data:/app/badger
+
   query-api:
     build: .
     ports:
       - "8000:8000"
     depends_on:
       - redis
+      - search
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - SEARCH_HOST=search
+      - SEARCH_PORT=50051
     volumes:
       - .:/app
 
 volumes:
   redis_data:
+  search_data:

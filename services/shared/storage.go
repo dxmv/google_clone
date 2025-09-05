@@ -9,7 +9,7 @@ import (
 	badger "github.com/dgraph-io/badger/v4"
 )
 
-const DB_PATH = "/Users/dimitrijestepanovic/Projects/google_clone/services/indexer/tmp/badger"
+const DB_PATH = "./app/badger"
 
 // openDB initializes and retqurns a database connection
 func openDB() (*badger.DB, error) {

@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from symspellpy import SymSpell, Verbosity
 import uvicorn
 import grpc
+import os
 from pb import search_pb2_grpc, search_pb2
 from redis_worker import enqueue_query, suggest as suggest_from_worker
 import time
@@ -106,6 +107,9 @@ async def suggest(prefix: str):
     return suggest_from_worker(prefix)
 
 if __name__ == "__main__":
-    channel = grpc.insecure_channel("localhost:50051")
+    # Get search service connection details from environment variables
+    search_host = os.getenv('SEARCH_HOST', 'localhost')
+    search_port = os.getenv('SEARCH_PORT', '50051')
+    channel = grpc.insecure_channel(f"{search_host}:{search_port}")
     stub = search_pb2_grpc.SearchStub(channel)
     uvicorn.run(app, host="0.0.0.0", port=8000)
