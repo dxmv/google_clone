@@ -74,12 +74,18 @@
 - [x] Display that query time
 - [x] I'm felling lucky functionality
 
-# 04.09.2025
-- [ ] Dockerize everything
+# 05.09.2025
+- [ ] Dockerise everything
+   - [x] Docker for crawler
+   - [x] Docker for indexer
+   - [ ] Docker for query-api
+   - [ ] Docker for search
+   - [ ] Docker for frontend
+- [ ] Docker compose
 - [ ] Draw the architecture and add it to the repo
 - [ ] Write a good general readme
 
-# 05.09.2025
+# 06.09.2025
 - [ ] Record 60sec demo video and add it to readme
 - [ ] Write a readme for each individual service
 - [ ] Modify CV bullets for this project

@@ -152,6 +152,12 @@ This repository is a from-scratch mini search engine designed to mirror the core
 ## Phase 7 – **Hardening & Ops**
 
 - [ ] Dockerise everything
+   - [x] Docker for crawler
+   - [x] Docker for indexer
+   - [ ] Docker for query-api
+   - [ ] Docker for search
+   - [ ] Docker for frontend
+- [ ] Docker compose
 
 ---
 
