@@ -9,7 +9,7 @@ services:
 
   search:
     build:
-      context: ..
+      context: services
       dockerfile: search/Dockerfile
     ports:
       - "50051:50051"
@@ -17,7 +17,9 @@ services:
       - search_data:/app/badger
 
   query-api:
-    build: .
+    build:
+      context: services/query-api
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     depends_on:
@@ -29,7 +31,21 @@ services:
       - SEARCH_HOST=search
       - SEARCH_PORT=50051
     volumes:
-      - .:/app
+      - ./services/query-api:/app
+
+  webapp:
+    build:
+      context: webapp
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - query-api
+    environment:
+      - VITE_QUERY_API_URL=http://localhost:8000
+    volumes:
+      - ./webapp:/app
+      - /app/node_modules
 
 volumes:
   redis_data:
