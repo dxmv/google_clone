@@ -154,7 +154,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
 - [ ] Dockerise everything
    - [x] Docker for crawler
    - [x] Docker for indexer
-   - [ ] Docker for query-api
+   - [x] Docker for query-api
    - [ ] Docker for search
    - [x] Docker for frontend
 - [ ] Docker compose

@@ -1,7 +1,12 @@
 import redis
 import time
+import os
 
-r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+# Get Redis connection details from environment variables
+redis_host = os.getenv('REDIS_HOST', 'localhost')
+redis_port = int(os.getenv('REDIS_PORT', 6379))
+
+r = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
 
 QUEUE_NAME = "query_queue"
 SORTED_SET_NAME = "searched_ngrams"
