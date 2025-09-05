@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+
 
 FROM golang:1.24.5
 
@@ -9,3 +9,4 @@ RUN go mod download
 
 # Copy the rest of the source code
 COPY . .
+

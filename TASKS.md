@@ -73,13 +73,13 @@
 - [x] Implement that suggestion bar
 - [x] Display that query time
 - [x] I'm felling lucky functionality
-- [ ] When a user clicks enter - search
-
-- [ ] Dockerize everything
 
 # 04.09.2025
-- [ ] Write a good general readme
-- [ ] Record 60sec demo video and add it to readme
+- [ ] Dockerize everything
 - [ ] Draw the architecture and add it to the repo
+- [ ] Write a good general readme
+
+# 05.09.2025
+- [ ] Record 60sec demo video and add it to readme
 - [ ] Write a readme for each individual service
 - [ ] Modify CV bullets for this project
