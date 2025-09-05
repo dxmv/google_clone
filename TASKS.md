@@ -80,7 +80,7 @@
    - [x] Docker for indexer
    - [ ] Docker for query-api
    - [ ] Docker for search
-   - [ ] Docker for frontend
+   - [x] Docker for frontend
 - [ ] Docker compose
 - [ ] Draw the architecture and add it to the repo
 - [ ] Write a good general readme
