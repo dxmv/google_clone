@@ -1,6 +1,6 @@
 # Google‑Clone Project Roadmap
 
-This repository is a from-scratch mini search engine designed to mirror the core ideas behind a web search stack while staying small enough to understand. It has a Go crawler and indexer, a Go-based ranking pipeline (BM25), a Python FastAPI query layer, and a React front-end. Storage is split by concern: HTML in object storage (MinIO/S3), document metadata in MongoDB, and an inverted index in BadgerDB (for fast local lookups). Everything speaks gRPC under the hood (or is moving there).
+This repository is a from-scratch mini search engine designed to mirror the core ideas behind a web search stack while staying small enough to understand. It has a Go crawler and indexer, a Go-based ranking pipeline (BM25), a Python FastAPI query layer, and a React front-end. Storage is split by concern: HTML in object storage (MinIO/S3), document metadata in MongoDB, and an inverted index in BadgerDB (for fast local lookups).
 
 ### Why this exists
  - Practice real IR: tokenization, postings, tf-idf/BM25, snippets, pagination.
