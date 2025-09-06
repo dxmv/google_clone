@@ -100,6 +100,59 @@ The system follows a microservices architecture with the following components:
 
 ## Services
 
+Woogle is built as a microservices architecture with five main services, each handling a specific aspect of the search engine pipeline:
+
+### 🕷️ [Crawler Service](services/crawler/README.md)
+**Language**: Go  
+**Purpose**: Discovers and fetches Wikipedia pages, extracting content and metadata
+
+- BFS crawling strategy with ~50k page target
+- Concurrent worker pool processing
+- Dual storage: raw HTML in Cloudflare R2, metadata in MongoDB
+- Intelligent URL filtering and deduplication
+- Rate limiting and respectful crawling
+
+### 📚 [Indexer Service](services/indexer/README.md)
+**Language**: Go  
+**Purpose**: Builds inverted index from crawled content for fast search retrieval
+
+- Concurrent document processing and tokenization
+- BadgerDB storage for high-performance key-value operations
+- BM25 statistics calculation (avgDocLen, corpus size)
+- Position-aware indexing for phrase queries
+- Memory-efficient batch processing
+
+### 🔍 [Search Service](services/search/README.md)
+**Language**: Go + gRPC  
+**Purpose**: Core ranking engine providing BM25-based document retrieval
+
+- BM25 algorithm with configurable parameters (k=2.0, b=0.9)
+- Concurrent postings retrieval and scoring
+- Min-heap optimization for top-K results
+- LRU query cache for performance (1000 entries)
+- Position-based scoring enhancements
+
+### 🌐 [Query API Service](services/query-api/README.md)
+**Language**: Python + FastAPI  
+**Purpose**: HTTP gateway with autocomplete and spell correction
+
+- RESTful search and suggestion endpoints
+- SymSpell-powered "Did you mean?" functionality
+- Redis-based n-gram autocomplete system
+- gRPC client for search service communication
+- CORS support and response compression
+
+### 🎨 [Frontend Webapp](webapp/README.md)
+**Language**: React + TypeScript  
+**Purpose**: Modern search interface with Google-like user experience
+
+- Real-time autocomplete with debounced input
+- "I'm Feeling Lucky" functionality
+- Responsive design with Tailwind CSS
+- Result pagination and image search
+- Performance optimized with Vite
+
+Each service is containerized with Docker and can be scaled independently. The services communicate through well-defined APIs (HTTP/gRPC) and share data through MongoDB, Redis, and Cloudflare R2 storage.
 
 ## Quick Start
 
@@ -310,29 +363,6 @@ var B = 0.9    // Field length normalization (0=no normalization, 1=full)
 
 #### Crawler Seed URLs
 **Location**: `services/crawler/config.go`
-
-The crawler starts from these Wikipedia topics:
-- Philosophy, Mathematics, Computer Science
-- Economics, Business, Finance
-- Sciences: Astronomy, Biology, Chemistry, Physics
-- Humanities: Literature, Psychology, History, Art, Music
-- Professional: Medicine, Engineering, Law
-
-#### Autocomplete Configuration
-**Location**: `services/query-api/redis_worker.py`
-
-- **N-gram sizes**: 2-grams and 3-grams for autocomplete
-- **Dictionary files**: Uses frequency-based English dictionaries for spell correction
-- **Suggestion threshold**: Edit distance ≤ 2 for "Did you mean" suggestions
-
-### Development vs Production
-
-**Development** (individual services):
-- Run each service manually with environment variables
-- Requires Redis running separately
-- Good for debugging and development
-
-### Security Notes
 
 ⚠️ **Important**: The example configuration files contain placeholder credentials.
 
