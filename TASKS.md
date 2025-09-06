@@ -85,7 +85,7 @@
 
 
 # 06.09.2025
-- [ ] Draw the architecture and add it to the repo
+- [x] Draw the architecture and add it to the repo
 - [ ] Write a good general readme
 - [ ] Write a readme for each individual service
 - [ ] Record 60sec demo video and add it to readme
