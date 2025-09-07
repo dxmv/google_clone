@@ -15,7 +15,7 @@ const ResultLink = ({result}: {result: SearchResult}) => {
         </div>
       </div>
       <div className="flex flex-col items-start justify-start gap-1">
-        <h2 className="text-xl text-[#1A54CB] font-bold hover:cursor-pointer hover:underline">{result.doc.title}</h2>
+        <h2 className="text-xl text-[#1A54CB] font-bold hover:cursor-pointer hover:underline"><a href={result.doc.url}>{result.doc.title}</a></h2>
         <p className="text-md text-[#676767]">{result.doc.first_paragraph.split(" ").length > MAX_FIRST_PARAGRAPH_LENGTH ? result.doc.first_paragraph.split(" ").slice(0, MAX_FIRST_PARAGRAPH_LENGTH).join(" ") + '...' : result.doc.first_paragraph}</p>
       </div>
     </div>
