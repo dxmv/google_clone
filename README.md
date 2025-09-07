@@ -1,29 +1,372 @@
-# Google‑Clone Project Roadmap
+# Woogle - A Mini Wikipedia Google Clone
 
-This repository is a from-scratch mini search engine designed to mirror the core ideas behind a web search stack while staying small enough to understand. It has a Go crawler and indexer, a Go-based ranking pipeline (BM25), a Python FastAPI query layer, and a React front-end. Storage is split by concern: HTML in object storage (MinIO/S3), document metadata in MongoDB, and an inverted index in BadgerDB (for fast local lookups).
+A from-scratch search engine that crawls, indexes, and ranks ~50k Wikipedia pages with Google-like features including autocomplete, spell correction, and BM25 ranking.
 
-### Why this exists
- - Practice real IR: tokenization, postings, tf-idf/BM25, snippets, pagination.
- - Systems thinking: concurrency in Go, backpressure, batching, caches.
- - Cloud-ish storage: object storage for the corpus, DB for metadata, KV for the index.
- - Pragmatism: ship an MVP first; make it faster and more robust later.
+## Demo
 
-### What it does (today)
- - Crawls a bounded slice of Wikipedia (seeded to Math/Philosophy), storing raw HTML in MinIO and metadata in MongoDB.
- - Builds an inverted index in BadgerDB, computes collection stats (doc count, average doc length), and serves BM25 queries with k=1.2, b=0.75.
- - Exposes a simple FastAPI endpoint the React UI calls to show paginated results.
+🎬 **[Watch the Demo Video](demo.mov)**
 
-### Tech choices (and why)
- - Go for crawler/indexer: easy concurrency, strong stdlib, fast binaries.
- - BadgerDB for the index: blazing fast local KV; perfect for a single-writer, single-box MVP.
- - MinIO/S3 for raw HTML: cheap, durable, scalable; decouples storage from compute.
- - MongoDB for metadata: flexible schema; easy querying.
- - FastAPI: quick to ship a clean API the frontend can hit.
- - gRPC: stable, language-agnostic contracts between services.
 
 
 ---
-## Phase 0 – **Baseline**
+
+## Table of Contents
+- [Features](#features)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Services](#services)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Roadmap](#roadmap)
+
+
+## Features
+
+- **Crawler (Go, concurrent)**
+  - BFS crawl of ~50k Wikipedia pages (Math, Philosophy, CS, …)
+  - URL normalization, namespace filters, dedupe, per-host rate limiting
+  - Persists **raw HTML** to Cloudflare R2 / MinIO and **metadata** (title, url, doc length, first paragraph, timestamps) to MongoDB
+
+- **Indexer (Go)**
+  - Builds a concurrent **inverted index** in BadgerDB
+  - Stores term frequencies (and positions) and computes corpus stats (N, avgDocLen) for ranking
+
+- **Ranker (Go, gRPC)**
+  - BM25 scoring (configurable; default **k=2.0, b=0.9**)
+  - Parallel postings scan + top-K min-heap
+  - **LRU query cache** to speed up repeated/热门 queries
+
+- **Query API (Python FastAPI)**
+  - Acts as the HTTP **gateway** to the ranker (gRPC client)
+  - **Autocomplete** via Redis n-grams (2- and 3-grams)
+  - **Spell correction** via SymSpell with thresholded “Did you mean”
+  - Pagination, basic rate limiting, and response hydration (titles/urls)
+
+- **Frontend (React)**
+  - Clean search UI with pagination, “I’m Feeling Lucky”, query time
+  - Autocomplete suggestions & “Did you mean”
+  - Results view for **web pages** and **images** (when available)
+
+- **Packaging & Infra**
+  - Per-service Dockerfiles + Docker Compose
+  - Environment-based configuration (Mongo, Redis, MinIO/R2, Badger paths)
+
+## Architecture
+
+![Architecture Diagram](architecture.drawio.png)
+
+The system follows a microservices architecture with the following components:
+
+- **Client (React Frontend)** - User interface for search queries and results
+- **Query API Service (Python FastAPI)** - HTTP gateway with autocomplete and spell correction
+- **Search Service (Go)** - Core ranking engine using BM25 with gRPC interface
+- **Index Service (Go)** - Builds and maintains the inverted index
+- **Crawler (Go)** - Web crawler for content discovery and extraction
+
+**Data Flow:**
+1. User queries flow from the frontend → Query API → Search Service
+2. Search Service queries the inverted index (BadgerDB) for fast retrieval
+3. Results are enriched with metadata from MongoDB and returned to the user
+4. Crawler discovers content, stores raw HTML in Cloudflare R2, and metadata in MongoDB
+5. Indexer processes the stored content to build searchable indexes
+
+## Tech Stack
+
+**Languages & Frameworks**
+- Go 1.22+ — crawler, indexer, ranker
+- Python 3.11+ — FastAPI (Query API)
+- React (Vite) — frontend
+
+**Inter-service Contracts**
+- gRPC + Protocol Buffers (`/proto`) between Query API ↔ Ranker
+- HTTP for other communication
+
+**Storage**
+- BadgerDB — inverted index & doc stats
+- MongoDB — document metadata (title, url, lengths, first paragraph, timestamps)
+- Cloudflare R2 — raw HTML pages
+
+**Caching & Queues**
+- Redis — for autocomplete suggestions
+
+**Search**
+- BM25 ranking (configurable `k`, `b`; default k=2.0, b=0.9)
+- SymSpell — spell correction (“Did you mean”)
+
+**Packaging & Dev**
+- Dockerfiles per service 
+- Docker compose
+
+## Services
+
+Woogle is built as a microservices architecture with five main services, each handling a specific aspect of the search engine pipeline:
+
+### 🕷️ [Crawler Service](services/crawler/README.md)
+**Language**: Go  
+**Purpose**: Discovers and fetches Wikipedia pages, extracting content and metadata
+
+- BFS crawling strategy with ~50k page target
+- Concurrent worker pool processing
+- Dual storage: raw HTML in Cloudflare R2, metadata in MongoDB
+- Intelligent URL filtering and deduplication
+- Rate limiting and respectful crawling
+
+### 📚 [Indexer Service](services/indexer/README.md)
+**Language**: Go  
+**Purpose**: Builds inverted index from crawled content for fast search retrieval
+
+- Concurrent document processing and tokenization
+- BadgerDB storage for high-performance key-value operations
+- BM25 statistics calculation (avgDocLen, corpus size)
+- Position-aware indexing for phrase queries
+- Memory-efficient batch processing
+
+### 🔍 [Search Service](services/search/README.md)
+**Language**: Go + gRPC  
+**Purpose**: Core ranking engine providing BM25-based document retrieval
+
+- BM25 algorithm with configurable parameters (k=2.0, b=0.9)
+- Concurrent postings retrieval and scoring
+- Min-heap optimization for top-K results
+- LRU query cache for performance (1000 entries)
+- Position-based scoring enhancements
+
+### 🌐 [Query API Service](services/query-api/README.md)
+**Language**: Python + FastAPI  
+**Purpose**: HTTP gateway with autocomplete and spell correction
+
+- RESTful search and suggestion endpoints
+- SymSpell-powered "Did you mean?" functionality
+- Redis-based n-gram autocomplete system
+- gRPC client for search service communication
+- CORS support and response compression
+
+### 🎨 [Frontend Webapp](webapp/README.md)
+**Language**: React + TypeScript  
+**Purpose**: Modern search interface with Google-like user experience
+
+- Real-time autocomplete with debounced input
+- "I'm Feeling Lucky" functionality
+- Responsive design with Tailwind CSS
+- Result pagination and image search
+- Performance optimized with Vite
+
+Each service is containerized with Docker and can be scaled independently. The services communicate through well-defined APIs (HTTP/gRPC) and share data through MongoDB, Redis, and Cloudflare R2 storage.
+
+## Quick Start
+
+### Prerequisites
+
+- **Go 1.22+** for crawler and indexer services
+- **Docker & Docker Compose** for running the full stack
+- **MongoDB** and **Cloudflare R2** credentials (for data storage)
+
+### Step 1: Set Up Environment
+
+First, clone the repository:
+```bash
+git clone https://github.com/dxmv/google_clone
+cd google_clone
+```
+
+### Step 2: Crawl Pages
+
+The crawler discovers and stores web pages. You'll need to configure your storage credentials first.
+
+1. **Configure environment variables** in `services/crawler/start.sh`:
+   ```bash
+   export MONGO_CONNECTION='your-mongodb-connection-string'
+   export MINIO_ENDPOINT='your-minio-or-r2-endpoint'
+   export MINIO_ACCESS_KEY='your-access-key'
+   export MINIO_SECRET_KEY='your-secret-key'
+   ```
+
+2. **Run the crawler**:
+   ```bash
+   cd services/crawler
+   chmod +x start.sh
+   ./start.sh
+   ```
+
+   The crawler will:
+   - Start from Wikipedia seed URLs
+   - Crawl ~50k pages using BFS
+   - Store raw HTML in MinIO/R2
+   - Save metadata (title, URL, content length) in MongoDB
+   - Take 10-30 minutes depending on your connection
+
+### Step 3: Build Search Index
+
+After crawling, build the inverted index for fast search:
+
+1. **Configure the same environment variables** in `services/indexer/start.sh`
+
+2. **Run the indexer**:
+   ```bash
+   cd services/indexer
+   chmod +x start.sh
+   ./start.sh
+   ```
+
+   The indexer will:
+   - Read crawled pages from storage
+   - Build inverted index with term frequencies and positions
+   - Store index in BadgerDB for fast retrieval
+   - Calculate corpus statistics for BM25 ranking
+   - Take 5-15 minutes depending on corpus size
+
+### Step 4: Launch the Search Engine
+
+With your corpus crawled and indexed, start the full search engine:
+
+```bash
+# From the project root
+docker-compose up --build
+```
+
+This will start:
+- **Redis** (port 6379) - for autocomplete caching
+- **Search Service** (port 50051) - gRPC ranking engine
+- **Query API** (port 8000) - HTTP gateway with spell correction
+- **Frontend** (port 5173) - React search interface
+
+### Step 5: Search!
+
+Open your browser and navigate to:
+```
+http://localhost:5173
+```
+
+You now have a fully functional search engine! Try searching for:
+- `mathematics` - broad topic with many results
+- `philosophy` - another well-covered area
+- `computer science` - technical content
+- `logic` - interdisciplinary topic
+
+### Quick Development Setup
+
+For development, you can also run services individually:
+
+```bash
+# Terminal 1 - Search Service
+cd services/search && go run .
+
+# Terminal 2 - Query API
+cd services/query-api && python -m uvicorn app:app --reload --port 8000
+
+# Terminal 3 - Frontend
+cd webapp && npm run dev
+```
+
+**Note:** Make sure Redis is running (`docker run -d -p 6379:6379 redis:7-alpine`) for autocomplete to work.
+
+## Configuration
+
+The system requires several environment variables for proper operation. Here's a comprehensive guide to configuring each service:
+
+### Core Storage Configuration
+
+These credentials are needed by both the **Crawler** and **Indexer** services:
+
+```bash
+# MongoDB connection (for document metadata)
+MONGO_CONNECTION='mongodb+srv://username:password@cluster.mongodb.net/?retryWrites=true&w=majority'
+
+# Cloudflare R2 / MinIO configuration (for raw HTML storage)
+MINIO_ENDPOINT='your-r2-endpoint.r2.cloudflarestorage.com'
+MINIO_ACCESS_KEY='your-access-key'
+MINIO_SECRET_KEY='your-secret-key'
+```
+
+### Service-Specific Configuration
+
+#### 1. Crawler Service
+**Location**: `services/crawler/start.sh`
+
+```bash
+export MONGO_CONNECTION='your-mongodb-connection-string'
+export MINIO_ENDPOINT='your-r2-endpoint.r2.cloudflarestorage.com'
+export MINIO_ACCESS_KEY='your-access-key'
+export MINIO_SECRET_KEY='your-secret-key'
+```
+
+**What it does**:
+- `MONGO_CONNECTION`: Stores document metadata (title, URL, content length, first paragraph, images)
+- `MINIO_*`: Stores raw HTML content using content hash as filename
+- Crawler will create buckets automatically if they don't exist
+
+#### 2. Indexer Service
+**Location**: `services/indexer/start.sh`
+
+```bash
+export MONGO_CONNECTION='your-mongodb-connection-string'
+export MINIO_ENDPOINT='your-r2-endpoint.r2.cloudflarestorage.com'
+export MINIO_ACCESS_KEY='your-access-key'
+export MINIO_SECRET_KEY='your-secret-key'
+```
+
+**What it does**:
+- Reads crawled HTML from MinIO/R2 storage
+- Fetches document metadata from MongoDB
+- Builds inverted index and stores it locally in BadgerDB (`./tmp/badger/`)
+
+#### 3. Query API Service (Python FastAPI)
+**Environment variables** (set in docker-compose or runtime):
+
+```bash
+REDIS_HOST=localhost          # Redis host for autocomplete cache
+REDIS_PORT=6379              # Redis port
+SEARCH_HOST=localhost        # Search service gRPC host
+SEARCH_PORT=50051           # Search service gRPC port
+```
+
+**What it does**:
+- `REDIS_*`: Connects to Redis for autocomplete n-gram storage and query caching
+- `SEARCH_*`: Connects to the Go search service via gRPC for ranking
+
+#### 4. Search Service (Go gRPC)
+**No additional environment variables needed**
+
+- Reads from local BadgerDB index (built by indexer)
+- Serves gRPC requests on port `50051`
+- Uses LRU cache for query results (1000 entries by default)
+
+#### 5. Frontend (React)
+**Environment variables**:
+
+```bash
+VITE_QUERY_API_URL=http://localhost:8000    # Query API endpoint
+```
+
+**What it does**:
+- `VITE_QUERY_API_URL`: Points to the Query API service for search requests
+
+### Docker Compose Configuration
+
+The `docker-compose.yml` automatically sets up:
+
+- **Redis**: Port 6379, with persistent volume
+- **Service networking**: All services can communicate using service names
+- **Volume mounting**: BadgerDB data persisted in `search_data` volume
+- **Environment injection**: Automatically sets service discovery variables
+
+### Configuration Files
+
+#### BM25 Ranking Parameters
+**Location**: `services/search/search.go`
+
+```go
+var K = 2.0    // Term frequency saturation point
+var B = 0.9    // Field length normalization (0=no normalization, 1=full)
+```
+
+#### Crawler Seed URLs
+**Location**: `services/crawler/config.go`
+
+⚠️ **Important**: The example configuration files contain placeholder credentials.
+
+## Roadmap
+### Phase 0 – **Baseline**
 1. **Simple frontend**
    - [x] Just a simple react page with an input
 
@@ -39,10 +382,9 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Query-api calls the search endpoint
 
 **Milestone:** Basic search
----
 
 
-## Phase 1 – **Find things** (Crawler V1)
+### Phase 1 – **Find things** (Crawler V1)
 
 1. **Minimal crawler**
    - [x] BFS from a seed list (only work with wikipedia for now)
@@ -54,9 +396,8 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] In index, use the crawleded pages & their metadata (remove the old docmeta logic)
 
 **Milestone:** Crawl across ~1k pages & test search on the frontend
----
 
-## Phase 2 – **Talk better** 
+### Phase 2 – **Talk better** 
 
 - [x] Make a simple gRPC ping-pong communication between the query-api and indexer, just to see how gRPC works
 - [x] Draft the new search .proto 
@@ -66,9 +407,9 @@ This repository is a from-scratch mini search engine designed to mirror the core
 
 
 **Milestone:** All services speak gRPC and we have a working frontend demo
----
 
-## Phase 3 – **Rank smarter**
+
+### Phase 3 – **Rank smarter**
    - [x] Concurrency in indexer
    - [x] Concurrency in crawler
    - [x] Modify crawler to get the content length for each document
@@ -76,9 +417,8 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] BM25 in indexer, at least for now
 
 **Milestone:** Have a working demo that use BM25 & crawl all 'Math' wikipedia under 2 mins
----
 
-## Phase 4 – **Scale the crawl & index**
+### Phase 4 – **Scale the crawl & index**
 
 1. **Crawler V2**
    - [x] Abstract the storage mechanism, so we can just plug in something else if we want
@@ -108,9 +448,8 @@ This repository is a from-scratch mini search engine designed to mirror the core
 
 **Milestone:** No more storing files on my disk, more optimal everything, only query-api and search communicate directly. <1s for queries with a lot of results like 'logic' or 'math'
 
----
 
-## Phase 5 – **Specific crawling & improvements**
+### Phase 5 – **Specific crawling & improvements**
 
 1. **Crawler V3**
    - [x] Figure out what kind of search engine we want, and crawl those pages, like if we want a stocks serach engine or something more specific - Wikipedia
@@ -124,13 +463,11 @@ This repository is a from-scratch mini search engine designed to mirror the core
 2. **Improvements**
    - [x] Use cloud storage
    - [x] 50k-100k pages craweled
-   - [ ] Index those pages
+   - [x] Index those pages
 
 **Milestone:** Optimized crawler, and a large corpus.
 
----
-
-## Phase 6 – **User experience polish**
+### Phase 6 – **User experience polish**
 
 1. **Better UI**
    - [x] Make a new figma design 
@@ -147,9 +484,7 @@ This repository is a from-scratch mini search engine designed to mirror the core
 
 **Milestone:** Google user experience
 
----
-
-## Phase 7 – **Dockerization**
+### Phase 7 – **Dockerization**
 
 - [x] Dockerise everything
    - [x] Docker for crawler
@@ -159,21 +494,16 @@ This repository is a from-scratch mini search engine designed to mirror the core
    - [x] Docker for frontend
 - [x] Docker compose
 
----
+### Phase 8 - **Final phase**
 
-## Phase 8 - **Final phase**
-
-- [ ] Record a demo video
-- [ ] Write a README.md for everything
+- [x] Record a demo video
+- [x] Write a README.md for everything
 
 ---
-## Improvement ideas
+### Next Ideas
 - [ ] More specialized crawler
 - [ ] Bigger corpus (more pages craweled)
-- [ ] In indexer save html tag for each word, in search use html tag to add a bonus to the score
+- [ ] Tag-aware scoring (boost <h1>, <title>)
 - [ ] News tab
-- [ ] Image indexing
 - [ ] Actually host the app
-- [ ] Position highlighting
-
-
+- [ ] Snippet highlighting by positions
