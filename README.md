@@ -4,7 +4,7 @@ A from-scratch search engine that crawls, indexes, and ranks ~50k Wikipedia page
 
 ## Demo
 
-🎬 **[Watch the Demo Video](demo-thumb.jpg)(demo.mp4)**
+[![Watch the demo](assets/demo-thumb.jpg)](https://drive.google.com/file/d/1LlE6kObCNFC3fLEWhoL_bza_ET6W1Owp/view?usp=sharing)
 
 
 
